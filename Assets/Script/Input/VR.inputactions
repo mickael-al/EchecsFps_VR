@@ -1,0 +1,128 @@
+{
+    "name": "VR",
+    "maps": [
+        {
+            "name": "XRI_Head",
+            "id": "8d2215a8-1531-45e2-96a6-35a829876d92",
+            "actions": [
+                {
+                    "name": "Position",
+                    "type": "Value",
+                    "id": "663b3e22-d015-4027-89c9-b23cb28ccc4f",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Rotation",
+                    "type": "Value",
+                    "id": "bad7d85f-1cc1-47a7-bab7-aa1a8df23248",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "97175667-4149-4412-98ce-a14ee08e0ea1",
+                    "path": "<XRHMD>/devicePosition",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Position",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "45d53291-08bf-45d9-a0de-9cf8036b9e3c",
+                    "path": "<XRHMD>/deviceRotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "XRI_HandLeft",
+            "id": "27ca2cd8-ff91-4bd0-9412-24c7886f038c",
+            "actions": [
+                {
+                    "name": "Position",
+                    "type": "Value",
+                    "id": "ad1b05cf-2dfb-4435-a459-9db825859b94",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Rotation",
+                    "type": "Value",
+                    "id": "a7a6b487-f799-4a9a-8c8b-3ff3c5dd5a14",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "0d442a9a-4ef9-48c6-988b-3678b334284b",
+                    "path": "<XRController>{LeftHand}/deviceRotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "XRI_HandRight",
+            "id": "3ed9ba19-ada3-43a8-bbf4-c9555a409217",
+            "actions": [
+                {
+                    "name": "Position",
+                    "type": "Value",
+                    "id": "b1c249f0-87a3-4a09-89fe-d4dddcb29ed7",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Rotation",
+                    "type": "Value",
+                    "id": "e90bf5af-7642-4a7f-9750-0c7388974515",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "35bdf8ef-3f8c-4506-b3a4-feb573a68345",
+                    "path": "<XRController>{RightHand}/deviceRotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
