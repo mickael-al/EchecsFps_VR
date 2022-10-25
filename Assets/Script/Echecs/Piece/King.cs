@@ -7,7 +7,23 @@ namespace Echecs
     public class King : Piece
     {
         private bool m_check;
-        King(Team team, Vector2Int pos) : base(team,PieceType.KING,pos){}
+        private static Dictionary<Team,King> m_listOfKing;
+        King(Team team, Vector2Int pos) : base(team,PieceType.KING,pos)
+        {
+            if(!m_listOfKing.ContainsKey(team))
+            {
+                m_listOfKing.Add(team,this);
+            }
+            else
+            {
+                Debug.LogError("Only one King per Team");
+            }
+        }
+
+        public static King GetKingByTeam(Team t)
+        {
+            return m_listOfKing[t];
+        }
 
         public bool Check
         {
@@ -19,63 +35,131 @@ namespace Echecs
 
         public override void calculePossibleMoves(Piece[,] field, bool check)
         {
+            m_possibleMoves.Clear();            
+            bool castles = true;            
+            int a, b, c;
 
-        }
-
-        public void setCheck(Piece[,] field, Vector2Int p)
-        {
-            bool check = false;
-
-            for (int i = 0; i < 8; i++)
+            for (int dx = -1; dx <= 1; dx++)
             {
-                for (int j = 0; j < 8; j++)
+                for (int dy = -1; dy <= 1; dy++)
                 {
-                    if (field[i,j] != null)
+                    if (m_pos.x + dx >= 0 && m_pos.x + dx <= 7 && m_pos.y + dy >= 0 && m_pos.y + dy <= 7)
                     {
-                        if (field[i,j].getTeam() != m_team)
+                        if (field[m_pos.x + dx,m_pos.y + dy] != null)
                         {
-                            if (field[i,j].getType() == PieceType.KING)
+                            if (field[m_pos.x + dx,m_pos.y + dy].Team != m_team)
                             {
-                                if (Mathf.Abs(field[i,j].getPos().x - p.x) <= 1 && Mathf.Abs(field[i,j].getPos().y - p.y) <= 1)
-                                {
-                                    check = true;
-                                }
-
+                                m_possibleMoves = pushMove(m_possibleMoves,new Vector2Int(m_pos.x + dx, m_pos.y + dy), MoveType.NORMAL,OwnKing,field,check);
                             }
-                            else if (field[i,j].getType() == PieceType.PAWN)
-                            {
-                                int dy_pawn;
-                                if (field[i,j].getTeam() == Team.WHITE)
-                                {
-                                    dy_pawn = 1;
-                                }
-                                else
-                                {
-                                    dy_pawn = -1;
-                                }
-                                if ((p.x == field[i,j].getPos().x + 1 || p.x == field[i,j].getPos().x - 1) && p.y == field[i,j].getPos().y + dy_pawn)
-                                {
-                                    check = true;
-                                }
-                            }
-                            else
-                            {
-                                field[i,j].calculePossibleMoves(field, false);
-                                Dictionary<Vector2Int,MoveType> np = field[i,j].PossibleMoves;
-                                foreach(var v in np)
-                                {
-                                    if(v.Key.x == p.x && v.Key.y == p.y)
-                                    {
-                                        check = true;
-                                    }
-                                }
-                            }
+                        }
+                        else
+                        {
+                            m_possibleMoves = pushMove(m_possibleMoves,new Vector2Int(m_pos.x + dx, m_pos.y + dy), MoveType.NORMAL,OwnKing,field,check);
                         }
                     }
                 }
             }
-            
-            m_check = check;
+
+            if (!m_hasMoved)
+            {
+                for (int i = 0; i <= 7; i += 7)
+                {
+                    for (int j = 0; j <= 7; j += 7)
+                    {
+                        castles = true;
+                        
+                            if (field[i,j] != null && field[i,j].Team == m_team && field[i,j].Type == PieceType.ROOK && !field[i,j].HasMoved)
+                            {                                
+                                if (i == 0)
+                                {
+                                    a = 1;b = 2;c = 3;
+                                }
+                                else
+                                {
+                                    a = 5;b = 6;c = 6;
+                                }
+                                if (field[a,j] == null && field[b,j] == null && field[c,j] == null)
+                                {
+                                    for (int k = 0; k < 8; k++)
+                                    {
+                                        for (int l = 0; l < 8; l++)
+                                        {
+                                            if (field[k,l] != null)
+                                            {
+                                                if (field[k,l].Team != m_team)
+                                                {                                                    
+                                                    foreach (var v in field[k,l].PossibleMoves)
+                                                    {
+                                                        if (i == 0)
+                                                        {
+                                                            if ((v.Key.x == 4 && v.Key.y == j) || (v.Key.x == 2 && v.Key.y == j) || (v.Key.x == 3 && v.Key.y == j))
+                                                            {
+                                                                castles = false;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            if ((v.Key.x == 5 && v.Key.y == j) || (v.Key.x == 6 && v.Key.y == j) || (v.Key.x == 4 && v.Key.y == j))
+                                                            {
+                                                                castles = false;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (castles)
+                                    {                                        
+                                        m_possibleMoves.Add(new Vector2Int(i,j),MoveType.CASTLE);                                    
+                                    }
+                                }
+                            }                        
+                    }
+                }
+            }
+        }
+
+        public void setCheck(Piece[,] field, Vector2Int p)
+        {
+            m_check = false;
+            int i,j,dy_pawn;
+            for (i = 0; i < 8; i++)
+            {
+                for (j = 0; j < 8; j++)
+                {                    
+                        if (field[i,j] != null && field[i,j].Team != m_team)
+                        {
+                            if (field[i,j].Type == PieceType.KING)
+                            {
+                                if (Mathf.Abs(field[i,j].Pos.x - p.x) <= 1 && Mathf.Abs(field[i,j].Pos.y - p.y) <= 1)
+                                {
+                                    m_check = true;
+                                }
+
+                            }
+                            else if (field[i,j].Type == PieceType.PAWN)
+                            {
+                                dy_pawn = field[i,j].Team == Team.WHITE ? 1 : -1;
+                                if ((p.x == field[i,j].Pos.x + 1 || p.x == field[i,j].Pos.x - 1) && p.y == field[i,j].Pos.y + dy_pawn)
+                                {
+                                    m_check = true;
+                                }
+                            }
+                            else
+                            {
+                                field[i,j].calculePossibleMoves(field, false);                                
+                                foreach(var v in field[i,j].PossibleMoves)
+                                {
+                                    if(v.Key.x == p.x && v.Key.y == p.y)
+                                    {
+                                        m_check = true;
+                                    }
+                                }
+                            }
+                        }                    
+                }
+            }        
         }
     }
 }
