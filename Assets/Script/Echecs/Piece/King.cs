@@ -8,7 +8,7 @@ namespace Echecs
     {
         private bool m_check;
         private static Dictionary<Team,King> m_listOfKing;
-        King(Team team, Vector2Int pos) : base(team,PieceType.KING,pos)
+        public King(Team team, Vector2Int pos) : base(team,PieceType.KING,pos)
         {
             if(!m_listOfKing.ContainsKey(team))
             {

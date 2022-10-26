@@ -6,7 +6,7 @@ namespace Echecs
 {
     public class Bishop : Piece
     {
-        Bishop(Team team, Vector2Int pos) : base(team,PieceType.BISHOP,pos){}
+        public Bishop(Team team, Vector2Int pos) : base(team,PieceType.BISHOP,pos){}
 
         public override void calculePossibleMoves(Piece[,] field, bool check)
         {            

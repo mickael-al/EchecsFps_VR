@@ -6,7 +6,7 @@ namespace Echecs
 {
     public class Queen : Piece
     {
-        Queen(Team team, Vector2Int pos) : base(team,PieceType.QUEEN,pos){}
+        public Queen(Team team, Vector2Int pos) : base(team,PieceType.QUEEN,pos){}
 
         public override void calculePossibleMoves(Piece[,] field, bool check)
         {

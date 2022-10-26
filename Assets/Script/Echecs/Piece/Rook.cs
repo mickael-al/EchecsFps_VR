@@ -6,7 +6,7 @@ namespace Echecs
 {
     public class Rook : Piece
     {
-        Rook(Team team, Vector2Int pos) : base(team,PieceType.ROOK,pos){}
+        public Rook(Team team, Vector2Int pos) : base(team,PieceType.ROOK,pos){}
 
         public override void calculePossibleMoves(Piece[,] field, bool check)
         {
