@@ -7,8 +7,8 @@ namespace Echecs
     public class King : Piece
     {
         private bool m_check;
-        private static Dictionary<Team,King> m_listOfKing;
-        public King(Team team, Vector2Int pos) : base(team,PieceType.KING,pos)
+        private static Dictionary<Team,King> m_listOfKing = new Dictionary<Team, King>();
+        public King(Team team, Vector2Int pos,GameEchecs ge) : base(team,PieceType.KING,pos,ge)
         {
             if(!m_listOfKing.ContainsKey(team))
             {

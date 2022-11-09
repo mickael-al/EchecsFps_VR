@@ -8,7 +8,7 @@ namespace Echecs
 	{
 		protected int m_dy;
 		protected KeyValuePair<bool,int> m_enPassant = new KeyValuePair<bool,int>(false,0);
-		public Pawn(Team team, Vector2Int pos) : base(team,PieceType.PAWN,pos)
+		public Pawn(Team team, Vector2Int pos,GameEchecs ge) : base(team,PieceType.PAWN,pos,ge)
 		{
 			m_dy = team == Team.BLACK ? -1 : 1;
 		}

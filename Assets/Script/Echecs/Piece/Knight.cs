@@ -6,7 +6,7 @@ namespace Echecs
 {
     public class Knight : Piece
     {
-        public Knight(Team team, Vector2Int pos) : base(team,PieceType.KNIGHT,pos){}
+        public Knight(Team team, Vector2Int pos,GameEchecs ge) : base(team,PieceType.KNIGHT,pos,ge){}
 
         public override void calculePossibleMoves(Piece[,] field, bool check)
         {
@@ -52,7 +52,7 @@ namespace Echecs
                         }
                     }
                 }
-            }            
+            }
         }
     }
 }

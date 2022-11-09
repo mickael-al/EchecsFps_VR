@@ -10,12 +10,27 @@ namespace Echecs
 		protected PieceType m_type;
 		protected Dictionary<Vector2Int,MoveType> m_possibleMoves = new Dictionary<Vector2Int,MoveType>();
 		protected bool m_hasMoved = false;
+		protected GameObject m_obj = null;
+		private GameEchecs m_gameEchecs = null;
 
-		public Piece(Team team,PieceType type,Vector2Int pos)
+		public Piece(Team team,PieceType type,Vector2Int pos,GameEchecs ge)
 		{
 			m_pos = pos;
 			m_team = team;
-			m_type = type;
+			m_type = type;	
+			m_gameEchecs = ge;
+			m_obj = GameObject.Instantiate(ge.PrefabObjectPiece[m_type],Vector3.zero,Quaternion.identity,ge.BoardObject);
+			if(m_obj != null)
+			{
+				m_obj.GetComponent<Renderer>().material = ge.TeamsMaterial[m_team];
+				UpdatOBJPosition();
+			}
+		}
+
+		public void UpdatOBJPosition()
+		{
+			m_obj.transform.position = m_gameEchecs.BoardObject.position+ new Vector3(0.075f*m_pos.x,0.0f,0.075f*m_pos.y);
+			m_obj.transform.rotation = Quaternion.Euler(0,m_team == Team.BLACK ? 180.0f : 0.0f,0);
 		}
 
 		public abstract void calculePossibleMoves(Piece[,] field, bool check);
@@ -61,6 +76,11 @@ namespace Echecs
 			p1 = p2;
 			p2 = np;
 		}
+
+		public static bool isInBoard(Vector2Int p)
+		{
+			return p.x >= 0 && p.x <= 7 && p.y >= 0 && p.y <= 7;
+		} 
 
 		public Dictionary<Vector2Int, MoveType> pushMove(Dictionary<Vector2Int, MoveType> moveList,Vector2Int moveP,MoveType moveT,King king,Piece[,] field,bool check)
 		{
