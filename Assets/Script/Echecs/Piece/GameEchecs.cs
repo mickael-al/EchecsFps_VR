@@ -1,17 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace Echecs
 {
     public class GameEchecs : MonoBehaviour
     {
         [SerializeField] private Transform boardObject = null;
+        [SerializeField] private GameObject prefabPossibleMove = null;
         private static GameEchecs instance = null;
         private GameState gameState = new GameState();
         private Dictionary<PieceType,GameObject> prefabObjectPiece = new Dictionary<PieceType, GameObject>();
         private Dictionary<Team,Material> teamsMaterial = new Dictionary<Team,Material>();
         private Team botTeam = Team.BLACK;
+        private List<GameObject> possibleMove = new List<GameObject>();
 
         #region Getter Setter
 
@@ -21,6 +24,11 @@ namespace Echecs
         public Transform BoardObject { get{ return boardObject;}}
 
         #endregion
+
+        public static Vector3 PosToBoard(Vector2Int pos)
+        {
+            return new Vector3(0.075f*pos.x,0.0f,0.075f*pos.y);
+        }
     
         public void Awake()
         {                       
@@ -40,6 +48,9 @@ namespace Echecs
         public void InitGameState(GameState gs)
         {
             Clear(gs);
+            List<Piece> w = new List<Piece>();
+            List<Piece> b = new List<Piece>();
+
             gs.field[0,6] = new Pawn(Team.BLACK,new Vector2Int(0,6),this);
             gs.field[1,6] = new Pawn(Team.BLACK,new Vector2Int(1,6),this);
             gs.field[2,6] = new Pawn(Team.BLACK,new Vector2Int(2,6),this);
@@ -81,6 +92,7 @@ namespace Echecs
 
             gs.field[4,7] = new Queen(Team.BLACK,new Vector2Int(4,7),this);
             gs.field[4,0] = new Queen(Team.WHITE,new Vector2Int(4,0),this);
+
             calculeAllMoves(gs);
         }  
 
@@ -98,26 +110,85 @@ namespace Echecs
             }
         }
 
+        private Move RandomMove(GameState gs)
+        {
+            List<Piece> canmove = new List<Piece>();
+            for(int i = 0; i < 8;i++)
+            {
+                for(int j = 0; j < 8;j++)
+                {
+                    if(gs.field[i,j] != null && gs.field[i,j].Team == gs.turn && gs.field[i,j].PossibleMoves.Count > 0)
+                    {
+                        canmove.Add(gs.field[i,j]);
+                    }
+                }
+            }
+            if(canmove.Count > 0)
+            {
+                Piece rdp = canmove[Random.Range(0,canmove.Count)];
+                int v = Random.Range(0,rdp.PossibleMoves.Keys.Count);
+                return new Move(gs.turn,rdp,rdp.PossibleMoves.Keys.ElementAt(v),rdp.PossibleMoves.Values.ElementAt(v));
+            }
+            return null;
+        }
+        private float updateSimulate = 0.0f;
         private void Update()
         {
+            updateSimulate += Time.deltaTime;
+            if(Input.GetKeyDown(KeyCode.Space) || Input.GetKey(KeyCode.LeftShift))
+            {
+                Simulate(gameState);
+                updateSimulate = 0.0f;
+            }            
+        }
 
+        public void DrawPossibleMove(Piece p)
+        {
+            int v = 0;
+            foreach(KeyValuePair<Vector2Int,MoveType> m in p.PossibleMoves)
+            {
+                if(possibleMove.Count > v)
+                {
+                    possibleMove[v].transform.position = boardObject.position + PosToBoard(m.Key);
+                    possibleMove[v].SetActive(true);
+                }
+                else
+                {
+                    GameObject obj = Instantiate(prefabPossibleMove,Vector3.zero,Quaternion.Euler(90,0,0),boardObject);
+                    possibleMove.Add(obj);
+                    possibleMove[v].transform.position = boardObject.position + PosToBoard(m.Key);
+                }
+                v++;
+            }
+        }
+
+        public void ClearPossibleMove()
+        {
+            foreach(GameObject go in possibleMove)
+            {
+                go.SetActive(false);
+            }
         }
 
         public void Simulate(GameState gs)
         {
-            gs.move=null;
-            
-            if(botTeam == gs.turn)
+            if(gs.endGame)
             {
-                
-            }
-            else
-            {
-
+                return;
             }
             if(gs.move != null)
             {
-                gs.turn = gs.turn == Team.WHITE ? Team.BLACK : Team.WHITE;
+                move(gs.move,gs);
+            }
+            gs.move=null;
+            gs.move = RandomMove(gs);
+            if(gs.move != null)
+            {
+                if(!gs.simulation)
+                {
+                    ClearPossibleMove();
+                    DrawPossibleMove(gs.move.targetPiece);
+                }
             }
         }
 
@@ -130,7 +201,218 @@ namespace Echecs
                     gs.field[i,j] = null;
                 }
             }
+        }
 
+        private void move(Move move,GameState gs)
+        {
+            if (gs.checkEnPassant)
+            {
+                disableEnPassant(gs);
+            }
+            else
+            {
+                gs.checkEnPassant = true;
+            }
+            //Debug.Log(move.move+" "+move.moveType+" "+move.targetPiece);
+
+            switch (move.moveType)
+            {
+                case MoveType.NORMAL:
+                    normal(move.targetPiece.Pos, move.move,gs);
+                    break;
+                case MoveType.CASTLE:
+                    castles(move.targetPiece.Pos,  move.move,gs);
+                    break;
+                case MoveType.ENPASSANT:
+                    enPassant(move.targetPiece.Pos, move.move,gs);
+                    break;
+                case MoveType.NEWPIECE:
+                    exchange(move.targetPiece.Pos,  move.move,gs);
+                    break;
+                default:
+                    break;
+            }
+
+            WinOrLoose(gs);
+        }
+
+        private void WinOrLoose(GameState gs)
+        {
+            bool lost = true;
+            King king = King.GetKingByTeam(gs.turn == Team.BLACK ? Team.WHITE : Team.BLACK);
+
+            king.setCheck(gs.field,King.GetKingByTeam(Team.WHITE).Pos);
+            bool moveOnlyKing = true;
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    if (gs.field[i,j] != null)
+                    {
+                        if (gs.field[i,j].Team != gs.turn)
+                        {
+                            gs.field[i,j].calculePossibleMoves(gs.field, true);
+                            if (gs.field[i,j].PossibleMoves.Count > 0)
+                            {
+                                lost = false;
+                                if(gs.field[i,j].Type != PieceType.KING)
+                                {
+                                    moveOnlyKing = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (king.Check && lost)
+            {
+                Debug.Log(gs.turn == Team.BLACK ? "Black wins" : "White wins");                
+                gs.endGame = true;
+            }
+            else if (lost)
+            {
+                Debug.Log("Equal"+(gs.turn == Team.BLACK ? "B" : "W")); 
+                gs.endGame = true;
+            }
+            if(moveOnlyKing)
+            {
+                king.TurnMoveOnly++;
+                if(king.TurnMoveOnly > 15)
+                {
+                    Debug.Log("TurnMoveOnly");
+                    Debug.Log(gs.turn == Team.BLACK ? "Black wins" : "White wins");
+                    gs.endGame = true;
+                }
+            }
+            else
+            {                
+                king.TurnMoveOnly = 0;
+            }
+            gs.turn = gs.turn == Team.WHITE ? Team.BLACK : Team.WHITE;
+        }
+
+
+        private void normal(Vector2Int start, Vector2Int end,GameState gs)
+        {
+            if(gs.field[end.x,end.y] != null)
+            {
+                gs.field[end.x,end.y].Dead = true;                
+            }
+            gs.field[end.x,end.y] = gs.field[start.x,start.y];
+            gs.field[end.x,end.y].HasMoved = true;
+            gs.field[start.x,start.y] = null;
+            gs.field[end.x,end.y].Pos = end;
+
+            if (gs.field[end.x,end.y].Type == PieceType.PAWN)
+            {
+                if (Mathf.Abs(end.y - start.y) == 2)
+                {
+                    if (end.x - 1 >= 0)
+                    {
+                        if (gs.field[end.x - 1,end.y] != null)
+                        {
+                            if (gs.field[end.x - 1,end.y].Type == PieceType.PAWN)
+                            {
+                                Pawn pawn = (Pawn)(gs.field[end.x - 1,end.y]);
+                                pawn.EnPassant = new KeyValuePair<bool, int>(true, -1);
+                                gs.checkEnPassant = false;
+                            }
+                        }
+                    }
+
+                    if (end.x + 1 <= 7)
+                    {
+                        if (gs.field[end.x + 1,end.y] != null)
+                        {
+                            if (gs.field[end.x + 1,end.y].Type == PieceType.PAWN)
+                            {
+                                Pawn pawn = (Pawn)(gs.field[end.x + 1,end.y]);
+                                pawn.EnPassant = new KeyValuePair<bool, int>(true, 1);
+                                gs.checkEnPassant = false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        private void exchange(Vector2Int start, Vector2Int end,GameState gs)
+        {
+            int y_draw = 0;
+            Team team = Team.WHITE;
+
+            if (gs.field[start.x,start.y].Team == Team.BLACK)
+            {
+                team = Team.BLACK;
+            }
+
+            bool quit = false;
+            int x = -1;
+            int y = -1;
+
+            Piece clickedOn = new Queen(team,end,this);
+            //Create new Piece between Rook,Knight,bishop,Queen
+   
+            gs.field[end.x,end.y] = clickedOn;
+            gs.field[start.x,start.y].Dead = true;
+            gs.field[start.x,start.y] = null;
+
+        }
+
+        private void enPassant(Vector2Int start, Vector2Int end,GameState gs)
+        {
+            Pawn pawn = (Pawn)(gs.field[start.x,start.y]);
+            gs.field[end.x,end.y - pawn.Direction] = null;
+            gs.field[end.x,end.y] = gs.field[start.x,start.y];
+            gs.field[end.x,end.y].HasMoved = true;
+            gs.field[start.x,start.y] = null;
+            gs.field[end.x,end.y].Pos = end;
+        }
+
+        private void castles(Vector2Int start, Vector2Int end,GameState gs)
+        {
+            if (end.x == 0)
+            {
+                gs.field[1,end.y] = gs.field[3,end.y];
+                gs.field[2,end.y] = gs.field[0,end.y];
+                gs.field[1,end.y].HasMoved = true;
+                gs.field[2,end.y].HasMoved = true;
+                gs.field[1,end.y].Pos = new Vector2Int(1, end.y);
+                gs.field[2,end.y].Pos = new Vector2Int(2, end.y);
+                gs.field[3,end.y] = null;
+                gs.field[0,end.y] = null;
+            }
+            else
+            {
+                gs.field[6,end.y] = gs.field[3,end.y];
+                gs.field[5,end.y] = gs.field[7,end.y];
+                gs.field[6,end.y].HasMoved = true;
+                gs.field[5,end.y].HasMoved = true;
+                gs.field[6,end.y].Pos = new Vector2Int(6, end.y);
+                gs.field[5,end.y].Pos = new Vector2Int(5, end.y);
+                gs.field[3,end.y] = null;
+                gs.field[7,end.y] = null;
+            }
+        }
+
+        private void disableEnPassant(GameState gs)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    if (gs.field[i,j] != null)
+                    {
+                        if (gs.field[i,j].Type == PieceType.PAWN)
+                        {
+                            Pawn p = (Pawn)(gs.field[i,j]);
+                            p.EnPassant = new KeyValuePair<bool, int>(false,0);
+                        }
+                    }
+                }
+            }
         }
 
         #region Getter Setter

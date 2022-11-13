@@ -8,6 +8,7 @@ namespace Echecs
     {
         private bool m_check;
         private static Dictionary<Team,King> m_listOfKing = new Dictionary<Team, King>();
+        private int turnMoveOnlyThis = 0;
         public King(Team team, Vector2Int pos,GameEchecs ge) : base(team,PieceType.KING,pos,ge)
         {
             if(!m_listOfKing.ContainsKey(team))
@@ -33,11 +34,15 @@ namespace Echecs
             }
         }
 
+        public int TurnMoveOnly
+        {
+            get{ return turnMoveOnlyThis;}
+            set{ turnMoveOnlyThis = value;}
+        }
+
         public override void calculePossibleMoves(Piece[,] field, bool check)
         {
-            m_possibleMoves.Clear();            
-            bool castles = true;            
-            int a, b, c;
+            m_possibleMoves.Clear();
 
             for (int dx = -1; dx <= 1; dx++)
             {
@@ -59,62 +64,17 @@ namespace Echecs
                     }
                 }
             }
-
-            if (!m_hasMoved)
+            if(!m_hasMoved)
             {
-                for (int i = 0; i <= 7; i += 7)
+                if(m_pos.y == 0 || m_pos.y == 7)
                 {
-                    for (int j = 0; j <= 7; j += 7)
+                    if(field[7,m_pos.y] != null && !field[7,m_pos.y].HasMoved && field[4,m_pos.y] == null && field[5,m_pos.y] == null && field[6,m_pos.y] == null)
                     {
-                        castles = true;
-                        
-                            if (field[i,j] != null && field[i,j].Team == m_team && field[i,j].Type == PieceType.ROOK && !field[i,j].HasMoved)
-                            {                                
-                                if (i == 0)
-                                {
-                                    a = 1;b = 2;c = 3;
-                                }
-                                else
-                                {
-                                    a = 5;b = 6;c = 6;
-                                }
-                                if (field[a,j] == null && field[b,j] == null && field[c,j] == null)
-                                {
-                                    for (int k = 0; k < 8; k++)
-                                    {
-                                        for (int l = 0; l < 8; l++)
-                                        {
-                                            if (field[k,l] != null)
-                                            {
-                                                if (field[k,l].Team != m_team)
-                                                {                                                    
-                                                    foreach (var v in field[k,l].PossibleMoves)
-                                                    {
-                                                        if (i == 0)
-                                                        {
-                                                            if ((v.Key.x == 4 && v.Key.y == j) || (v.Key.x == 2 && v.Key.y == j) || (v.Key.x == 3 && v.Key.y == j))
-                                                            {
-                                                                castles = false;
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            if ((v.Key.x == 5 && v.Key.y == j) || (v.Key.x == 6 && v.Key.y == j) || (v.Key.x == 4 && v.Key.y == j))
-                                                            {
-                                                                castles = false;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    if (castles)
-                                    {                                        
-                                        m_possibleMoves.Add(new Vector2Int(i,j),MoveType.CASTLE);                                    
-                                    }
-                                }
-                            }                        
+                        m_possibleMoves.Add(new Vector2Int(7,m_pos.y),MoveType.CASTLE);   
+                    }
+                    if(field[0,m_pos.y] != null && !field[0,m_pos.y].HasMoved && field[1,m_pos.y] == null && field[2,m_pos.y] == null)
+                    {
+                        m_possibleMoves.Add(new Vector2Int(0,m_pos.y),MoveType.CASTLE);   
                     }
                 }
             }

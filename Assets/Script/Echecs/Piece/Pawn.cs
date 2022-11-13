@@ -21,6 +21,11 @@ namespace Echecs
 			set{m_enPassant = value;}
 		}
 
+		public int Direction
+		{
+			get {return m_dy;}
+		}
+
 		#endregion
 
 		public override void calculePossibleMoves(Piece[,] field, bool check)
@@ -43,7 +48,7 @@ namespace Echecs
 
 			if ((m_pos.y + 2 * m_dy >= 0) && (m_pos.y + 2 * m_dy <= 7))
 			{
-				if (field[m_pos.x,m_pos.y + 2 * m_dy] == null && !m_hasMoved)
+				if (field[m_pos.x,m_pos.y + 2 * m_dy] == null && field[m_pos.x,m_pos.y + m_dy] == null && !m_hasMoved)
 				{
 					m_possibleMoves = pushMove(m_possibleMoves,new Vector2Int(m_pos.x,  m_pos.y + 2 * m_dy),MoveType.NORMAL,OwnKing,field,check);	
 				}

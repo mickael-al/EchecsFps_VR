@@ -9,9 +9,13 @@ namespace Echecs
         private Team team;
         public Piece targetPiece;
         public Vector2Int move;
-        public Move(Team t)
+        public MoveType moveType;
+        public Move(Team t,Piece tp,Vector2Int m,MoveType mt)
         {
             team = t;
+            targetPiece = tp;
+            move = m;
+            moveType = mt;
         }
     }
 }

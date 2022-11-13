@@ -11,6 +11,7 @@ namespace Echecs
 		protected Dictionary<Vector2Int,MoveType> m_possibleMoves = new Dictionary<Vector2Int,MoveType>();
 		protected bool m_hasMoved = false;
 		protected GameObject m_obj = null;
+		protected bool m_dead = false;
 		private GameEchecs m_gameEchecs = null;
 
 		public Piece(Team team,PieceType type,Vector2Int pos,GameEchecs ge)
@@ -29,7 +30,7 @@ namespace Echecs
 
 		public void UpdatOBJPosition()
 		{
-			m_obj.transform.position = m_gameEchecs.BoardObject.position+ new Vector3(0.075f*m_pos.x,0.0f,0.075f*m_pos.y);
+			m_obj.transform.position = m_gameEchecs.BoardObject.position+ GameEchecs.PosToBoard(m_pos);
 			m_obj.transform.rotation = Quaternion.Euler(0,m_team == Team.BLACK ? 180.0f : 0.0f,0);
 		}
 
@@ -37,35 +38,21 @@ namespace Echecs
 
 		#region Getter Setter
 
-		public Dictionary<Vector2Int,MoveType> PossibleMoves
-		{
-			get{return m_possibleMoves;}
-		}
+		public Dictionary<Vector2Int,MoveType> PossibleMoves { get{return m_possibleMoves;} }
+		public bool HasMoved { get{return m_hasMoved;} set{ m_hasMoved = value;}}
+		public Team Team { get{return m_team;} }
+		public PieceType Type { get{return m_type;} }
+		public Vector2Int Pos { get{return m_pos;} set{m_pos = value;UpdatOBJPosition();} }
+		public King OwnKing { get{return King.GetKingByTeam(m_team);} }
 
-		public bool HasMoved
-		{
-			get{return m_hasMoved;}
-		}
-
-		public Team Team 
+		public bool Dead 
 		{ 
-			get{return m_team;}
-		}
-
-		public PieceType Type
-		{ 
-			get{return m_type;}
-		}
-
-		public Vector2Int Pos
-		{
-			get{return m_pos;}
-			set{m_pos = value;}
-		}
-
-		public King OwnKing
-		{
-			get{return King.GetKingByTeam(m_team);}
+			get{return m_dead;}
+			set
+			{
+				m_dead = value;
+				GameObject.Destroy(m_obj);
+			} 
 		}
 
 		#endregion
@@ -118,7 +105,7 @@ namespace Echecs
 				}
 				if (!king.Check)
 				{
-					moveList.Add(moveP,moveT);
+					moveList[moveP] = moveT;
 				}
 				king.setCheck(field, king.Pos);
 			}
