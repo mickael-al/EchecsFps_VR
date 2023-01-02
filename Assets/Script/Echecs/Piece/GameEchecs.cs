@@ -136,7 +136,7 @@ namespace Echecs
         private void Update()
         {
             updateSimulate += Time.deltaTime;
-            if(Input.GetKeyDown(KeyCode.Space) || Input.GetKey(KeyCode.LeftShift))
+            if(Input.GetKeyDown(KeyCode.LeftShift))
             {
                 Simulate(gameState);
                 updateSimulate = 0.0f;
@@ -151,8 +151,8 @@ namespace Echecs
             for(int i = 0; i < 8 && p == null; i++)
             {
                 for(int j = 0; j < 8 && p == null; j++)
-                {
-                    if(gameState.field[i,j].Obj == obj)
+                {                    
+                    if(gameState.field[i,j] != null && gameState.field[i,j].Obj == obj)
                     {
                         p = gameState.field[i,j];
                     }
@@ -223,7 +223,7 @@ namespace Echecs
             {
                 return;
             }
-            float minDistance = float.MaxValue;
+            float minDistance = 0.2f;
             float valCalc = 0.0f;
             int v = -1;
 
@@ -241,6 +241,7 @@ namespace Echecs
                 p.Pos = p.Pos;
                 return;
             }
+            Debug.Log(p.PossibleMoves.Keys.ElementAt(v) + " " + p.PossibleMoves.Values.ElementAt(v));
             gameState.move = new Move(gameState.turn,p,p.PossibleMoves.Keys.ElementAt(v),p.PossibleMoves.Values.ElementAt(v));
             if(gameState.move != null)
             {

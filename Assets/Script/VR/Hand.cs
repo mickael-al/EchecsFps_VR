@@ -14,6 +14,7 @@ namespace ChessVR
         private Piece currentP;
         private Transform parentPiece = null;
         private Dictionary<Vector2Int,MoveType> currentPiceMove;
+        private List<GameObject> listPiece = new List<GameObject>();
 
         void Start()
         {
@@ -26,12 +27,39 @@ namespace ChessVR
 
         public void StartTakeButton(InputAction.CallbackContext ctx)
         {
-            take = true;
+            GameObject obj = null;
+            float minValue = float.MaxValue;
+            float calculeVal = 0.0f;
+            for(int i = 0; i < listPiece.Count;i++)
+            {
+                calculeVal = Vector3.Distance(listPiece[i].transform.position,transform.position);
+                if(calculeVal < minValue)
+                {
+                    minValue = calculeVal;  
+                    obj = listPiece[i];       
+                }
+            }
+            if(obj == null)
+            {
+                return;
+            }
+
+                piece = obj;
+                currentP = GameEchecs.Instance.DrawPossibleMove(piece,out currentPiceMove);
+                if(currentP != null)
+                {
+                    if(currentP.Team == Team.BLACK)
+                    {
+                        piece = null;
+                        parentPiece = null;
+                    }
+                }
+                parentPiece = piece.transform.parent;
+                piece.transform.parent = transform;
         }
 
         public void StopTakeButton(InputAction.CallbackContext ctx)
         {
-            take = false;
             piece.transform.parent = parentPiece;
             GameEchecs.Instance.ClearPossibleMove();
             GameEchecs.Instance.ApplyPlayerSimulate(currentP);
@@ -41,15 +69,32 @@ namespace ChessVR
             parentPiece = null;
         }
 
+        public void Update()
+        {
+            if(Input.GetKeyDown(KeyCode.Space))
+            {
+                StartTakeButton(default);
+            }
+            if(Input.GetKeyDown(KeyCode.A))
+            {
+                StopTakeButton(default);
+            }
+        }
+
         private void OnTriggerEnter(Collider other)
         {
-            if(other.transform.tag == "Piece" && take && piece == null)
+            if(other.transform.tag == "Piece")
             {
-                piece = other.gameObject;
-                parentPiece = piece.transform.parent;
-                piece.transform.parent = transform;
-                currentP = GameEchecs.Instance.DrawPossibleMove(piece,out currentPiceMove);
-            }
+                listPiece.Add(other.gameObject);
+            }          
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if(other.transform.tag == "Piece")
+            {
+                listPiece.Remove(other.gameObject);
+            }          
         }
     }
 }

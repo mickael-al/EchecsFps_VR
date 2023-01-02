@@ -20,10 +20,5 @@ namespace ChessVR
             Hand[1].transform.localPosition = InputManager.Vr.XRI_HandRight.Position.ReadValue<Vector3>() * size;
             Hand[1].transform.rotation = InputManager.Vr.XRI_HandRight.Rotation.ReadValue<Quaternion>();
         }
-
-        public void TakePiece()
-        {
-
-        }
     }
 }
