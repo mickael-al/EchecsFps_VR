@@ -15,6 +15,7 @@ namespace ChessVR
         private Transform parentPiece = null;
         private Dictionary<Vector2Int,MoveType> currentPiceMove;
         private List<GameObject> listPiece = new List<GameObject>();
+        private static List<Hand> listOfHand = new List<Hand>();
 
         void Start()
         {
@@ -23,9 +24,15 @@ namespace ChessVR
                 InputManager.Vr.XRI_HandLeft.TakeButton.started += StartTakeButton;
                 InputManager.Vr.XRI_HandLeft.TakeButton.canceled += StopTakeButton;
             }
+            listOfHand.Add(this);
         }
 
         public void StartTakeButton(InputAction.CallbackContext ctx)
+        {
+            StartTB();
+        }
+
+        public void StartTB()
         {
             GameObject obj = null;
             float minValue = float.MaxValue;
@@ -60,9 +67,18 @@ namespace ChessVR
 
         public void StopTakeButton(InputAction.CallbackContext ctx)
         {
-            piece.transform.parent = parentPiece;
-            GameEchecs.Instance.ClearPossibleMove();
+           StopTB();
+        }
+
+        public void StopTB()
+        {
+            if(piece == null)
+            {
+                return;
+            }
+            piece.transform.parent = parentPiece;            
             GameEchecs.Instance.ApplyPlayerSimulate(currentP);
+            GameEchecs.Instance.ClearPossibleMove();
             piece = null;            
             currentP = null;
             currentPiceMove = null;
@@ -73,11 +89,11 @@ namespace ChessVR
         {
             if(Input.GetKeyDown(KeyCode.Space))
             {
-                StartTakeButton(default);
+                StartTB();
             }
             if(Input.GetKeyDown(KeyCode.A))
             {
-                StopTakeButton(default);
+                StopTB();
             }
         }
 
@@ -85,6 +101,16 @@ namespace ChessVR
         {
             if(other.transform.tag == "Piece")
             {
+                foreach(Hand h in listOfHand)
+                {
+                    if(h != this)
+                    {
+                        if(h.listPiece.Contains(other.gameObject))
+                        {
+                            return;
+                        }
+                    }
+                }
                 listPiece.Add(other.gameObject);
             }          
         }

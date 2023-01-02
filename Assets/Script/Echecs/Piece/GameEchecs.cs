@@ -219,7 +219,7 @@ namespace Echecs
 
         public void ApplyPlayerSimulate(Piece p)
         {
-            if(gameState.endGame)
+            if(gameState.endGame || p == null)
             {
                 return;
             }
@@ -241,12 +241,14 @@ namespace Echecs
                 p.Pos = p.Pos;
                 return;
             }
-            Debug.Log(p.PossibleMoves.Keys.ElementAt(v) + " " + p.PossibleMoves.Values.ElementAt(v));
             gameState.move = new Move(gameState.turn,p,p.PossibleMoves.Keys.ElementAt(v),p.PossibleMoves.Values.ElementAt(v));
             if(gameState.move != null)
             {
                 move(gameState.move,gameState);
-            }
+                gameState.move = null;
+                gameState.move = RandomMove(gameState);
+                move(gameState.move,gameState);
+            }           
         }
 
         public void Clear(GameState gs)
