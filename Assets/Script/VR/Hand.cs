@@ -83,6 +83,7 @@ namespace ChessVR
             currentP = null;
             currentPiceMove = null;
             parentPiece = null;
+            listPiece.Clear();
         }
 
         public void Update()

@@ -138,7 +138,7 @@ namespace Echecs
             updateSimulate += Time.deltaTime;
             if(Input.GetKeyDown(KeyCode.LeftShift))
             {
-                Simulate(gameState);
+                //Simulate(gameState);
                 updateSimulate = 0.0f;
             }            
         }
