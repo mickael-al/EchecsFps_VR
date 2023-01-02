@@ -11,9 +11,10 @@ GameObject:
   - component: {fileID: 5317889350274442691}
   - component: {fileID: 9107170859344194150}
   - component: {fileID: 6451367901192461996}
+  - component: {fileID: 8600831761936853811}
   m_Layer: 0
   m_Name: pion
-  m_TagString: Untagged
+  m_TagString: Piece
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -83,3 +84,16 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &8600831761936853811
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4793836186357514105}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.040019516, y: 0.0680975, z: 0.04001952}
+  m_Center: {x: 0.00019025803, y: 0.03428176, z: -0.000104672275}

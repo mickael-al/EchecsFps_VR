@@ -44,6 +44,7 @@ namespace Echecs
 		public PieceType Type { get{return m_type;} }
 		public Vector2Int Pos { get{return m_pos;} set{m_pos = value;UpdatOBJPosition();} }
 		public King OwnKing { get{return King.GetKingByTeam(m_team);} }
+		public GameObject Obj { get{return m_obj;}}
 
 		public bool Dead 
 		{ 

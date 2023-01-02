@@ -96,6 +96,7 @@ namespace Echecs
             calculeAllMoves(gs);
         }  
 
+
         public void calculeAllMoves(GameState gs)
         {
             for (int i = 0; i < 8; i++)
@@ -140,6 +141,30 @@ namespace Echecs
                 Simulate(gameState);
                 updateSimulate = 0.0f;
             }            
+        }
+
+        public Piece DrawPossibleMove(GameObject obj,out Dictionary<Vector2Int,MoveType> listMove)
+        {
+            ClearPossibleMove();
+            Piece p = null;
+            listMove = new Dictionary<Vector2Int,MoveType>();
+            for(int i = 0; i < 8 && p == null; i++)
+            {
+                for(int j = 0; j < 8 && p == null; j++)
+                {
+                    if(gameState.field[i,j].Obj == obj)
+                    {
+                        p = gameState.field[i,j];
+                    }
+                }
+            }
+            if(p != null)
+            {
+                DrawPossibleMove(p);
+                listMove = p.PossibleMoves; 
+                return p;
+            }            
+            return null;
         }
 
         public void DrawPossibleMove(Piece p)
@@ -189,6 +214,37 @@ namespace Echecs
                     ClearPossibleMove();
                     DrawPossibleMove(gs.move.targetPiece);
                 }
+            }
+        }
+
+        public void ApplyPlayerSimulate(Piece p)
+        {
+            if(gameState.endGame)
+            {
+                return;
+            }
+            float minDistance = float.MaxValue;
+            float valCalc = 0.0f;
+            int v = -1;
+
+            for(int i = 0; i < p.PossibleMoves.Count;i++)            
+            {
+                valCalc = Vector3.Distance((boardObject.position + PosToBoard(p.PossibleMoves.Keys.ElementAt(i))),p.Obj.transform.position);
+                if(valCalc < minDistance)
+                {
+                    minDistance = valCalc;
+                    v = i;
+                }
+            }
+            if(v == -1)
+            {
+                p.Pos = p.Pos;
+                return;
+            }
+            gameState.move = new Move(gameState.turn,p,p.PossibleMoves.Keys.ElementAt(v),p.PossibleMoves.Values.ElementAt(v));
+            if(gameState.move != null)
+            {
+                move(gameState.move,gameState);
             }
         }
 

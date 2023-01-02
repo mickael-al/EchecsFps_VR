@@ -92,6 +92,24 @@ public partial class @VR : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Take"",
+                    ""type"": ""Value"",
+                    ""id"": ""f2c1b442-78fe-4cae-9680-2ed224951812"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""TakeButton"",
+                    ""type"": ""Button"",
+                    ""id"": ""3530a0e6-afd4-4b05-b60c-cd325814a904"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -103,6 +121,39 @@ public partial class @VR : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Rotation"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c8e047aa-fe32-46a1-9b8f-d05ef9f41844"",
+                    ""path"": ""<XRController>{LeftHand}/devicePosition"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Position"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""aaa89753-35ac-4ef1-a587-41348b0c953d"",
+                    ""path"": ""<XRController>{LeftHand}/grip"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Take"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d9894533-21bf-443a-8968-48b7d80e3c90"",
+                    ""path"": ""<XRController>{LeftHand}/gripPressed"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TakeButton"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -129,6 +180,24 @@ public partial class @VR : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Take"",
+                    ""type"": ""Value"",
+                    ""id"": ""8e583325-caef-4d24-a02b-ea1210e03f0d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""TakeButton"",
+                    ""type"": ""Button"",
+                    ""id"": ""8651140d-6a2d-461c-bf2c-fb42d7e9daf1"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -140,6 +209,39 @@ public partial class @VR : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Rotation"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cc962ac5-678f-4ba4-90c2-1a7bfc981262"",
+                    ""path"": ""<XRController>{RightHand}/devicePosition"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Position"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e919cdfc-8ef2-47b4-ac45-24355a5452ab"",
+                    ""path"": ""<XRController>{RightHand}/grip"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Take"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7c277c14-eff9-4f6e-9fa7-8dcf87937ec1"",
+                    ""path"": ""<XRController>{RightHand}/gripPressed"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TakeButton"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -156,10 +258,14 @@ public partial class @VR : IInputActionCollection2, IDisposable
         m_XRI_HandLeft = asset.FindActionMap("XRI_HandLeft", throwIfNotFound: true);
         m_XRI_HandLeft_Position = m_XRI_HandLeft.FindAction("Position", throwIfNotFound: true);
         m_XRI_HandLeft_Rotation = m_XRI_HandLeft.FindAction("Rotation", throwIfNotFound: true);
+        m_XRI_HandLeft_Take = m_XRI_HandLeft.FindAction("Take", throwIfNotFound: true);
+        m_XRI_HandLeft_TakeButton = m_XRI_HandLeft.FindAction("TakeButton", throwIfNotFound: true);
         // XRI_HandRight
         m_XRI_HandRight = asset.FindActionMap("XRI_HandRight", throwIfNotFound: true);
         m_XRI_HandRight_Position = m_XRI_HandRight.FindAction("Position", throwIfNotFound: true);
         m_XRI_HandRight_Rotation = m_XRI_HandRight.FindAction("Rotation", throwIfNotFound: true);
+        m_XRI_HandRight_Take = m_XRI_HandRight.FindAction("Take", throwIfNotFound: true);
+        m_XRI_HandRight_TakeButton = m_XRI_HandRight.FindAction("TakeButton", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -262,12 +368,16 @@ public partial class @VR : IInputActionCollection2, IDisposable
     private IXRI_HandLeftActions m_XRI_HandLeftActionsCallbackInterface;
     private readonly InputAction m_XRI_HandLeft_Position;
     private readonly InputAction m_XRI_HandLeft_Rotation;
+    private readonly InputAction m_XRI_HandLeft_Take;
+    private readonly InputAction m_XRI_HandLeft_TakeButton;
     public struct XRI_HandLeftActions
     {
         private @VR m_Wrapper;
         public XRI_HandLeftActions(@VR wrapper) { m_Wrapper = wrapper; }
         public InputAction @Position => m_Wrapper.m_XRI_HandLeft_Position;
         public InputAction @Rotation => m_Wrapper.m_XRI_HandLeft_Rotation;
+        public InputAction @Take => m_Wrapper.m_XRI_HandLeft_Take;
+        public InputAction @TakeButton => m_Wrapper.m_XRI_HandLeft_TakeButton;
         public InputActionMap Get() { return m_Wrapper.m_XRI_HandLeft; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -283,6 +393,12 @@ public partial class @VR : IInputActionCollection2, IDisposable
                 @Rotation.started -= m_Wrapper.m_XRI_HandLeftActionsCallbackInterface.OnRotation;
                 @Rotation.performed -= m_Wrapper.m_XRI_HandLeftActionsCallbackInterface.OnRotation;
                 @Rotation.canceled -= m_Wrapper.m_XRI_HandLeftActionsCallbackInterface.OnRotation;
+                @Take.started -= m_Wrapper.m_XRI_HandLeftActionsCallbackInterface.OnTake;
+                @Take.performed -= m_Wrapper.m_XRI_HandLeftActionsCallbackInterface.OnTake;
+                @Take.canceled -= m_Wrapper.m_XRI_HandLeftActionsCallbackInterface.OnTake;
+                @TakeButton.started -= m_Wrapper.m_XRI_HandLeftActionsCallbackInterface.OnTakeButton;
+                @TakeButton.performed -= m_Wrapper.m_XRI_HandLeftActionsCallbackInterface.OnTakeButton;
+                @TakeButton.canceled -= m_Wrapper.m_XRI_HandLeftActionsCallbackInterface.OnTakeButton;
             }
             m_Wrapper.m_XRI_HandLeftActionsCallbackInterface = instance;
             if (instance != null)
@@ -293,6 +409,12 @@ public partial class @VR : IInputActionCollection2, IDisposable
                 @Rotation.started += instance.OnRotation;
                 @Rotation.performed += instance.OnRotation;
                 @Rotation.canceled += instance.OnRotation;
+                @Take.started += instance.OnTake;
+                @Take.performed += instance.OnTake;
+                @Take.canceled += instance.OnTake;
+                @TakeButton.started += instance.OnTakeButton;
+                @TakeButton.performed += instance.OnTakeButton;
+                @TakeButton.canceled += instance.OnTakeButton;
             }
         }
     }
@@ -303,12 +425,16 @@ public partial class @VR : IInputActionCollection2, IDisposable
     private IXRI_HandRightActions m_XRI_HandRightActionsCallbackInterface;
     private readonly InputAction m_XRI_HandRight_Position;
     private readonly InputAction m_XRI_HandRight_Rotation;
+    private readonly InputAction m_XRI_HandRight_Take;
+    private readonly InputAction m_XRI_HandRight_TakeButton;
     public struct XRI_HandRightActions
     {
         private @VR m_Wrapper;
         public XRI_HandRightActions(@VR wrapper) { m_Wrapper = wrapper; }
         public InputAction @Position => m_Wrapper.m_XRI_HandRight_Position;
         public InputAction @Rotation => m_Wrapper.m_XRI_HandRight_Rotation;
+        public InputAction @Take => m_Wrapper.m_XRI_HandRight_Take;
+        public InputAction @TakeButton => m_Wrapper.m_XRI_HandRight_TakeButton;
         public InputActionMap Get() { return m_Wrapper.m_XRI_HandRight; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -324,6 +450,12 @@ public partial class @VR : IInputActionCollection2, IDisposable
                 @Rotation.started -= m_Wrapper.m_XRI_HandRightActionsCallbackInterface.OnRotation;
                 @Rotation.performed -= m_Wrapper.m_XRI_HandRightActionsCallbackInterface.OnRotation;
                 @Rotation.canceled -= m_Wrapper.m_XRI_HandRightActionsCallbackInterface.OnRotation;
+                @Take.started -= m_Wrapper.m_XRI_HandRightActionsCallbackInterface.OnTake;
+                @Take.performed -= m_Wrapper.m_XRI_HandRightActionsCallbackInterface.OnTake;
+                @Take.canceled -= m_Wrapper.m_XRI_HandRightActionsCallbackInterface.OnTake;
+                @TakeButton.started -= m_Wrapper.m_XRI_HandRightActionsCallbackInterface.OnTakeButton;
+                @TakeButton.performed -= m_Wrapper.m_XRI_HandRightActionsCallbackInterface.OnTakeButton;
+                @TakeButton.canceled -= m_Wrapper.m_XRI_HandRightActionsCallbackInterface.OnTakeButton;
             }
             m_Wrapper.m_XRI_HandRightActionsCallbackInterface = instance;
             if (instance != null)
@@ -334,6 +466,12 @@ public partial class @VR : IInputActionCollection2, IDisposable
                 @Rotation.started += instance.OnRotation;
                 @Rotation.performed += instance.OnRotation;
                 @Rotation.canceled += instance.OnRotation;
+                @Take.started += instance.OnTake;
+                @Take.performed += instance.OnTake;
+                @Take.canceled += instance.OnTake;
+                @TakeButton.started += instance.OnTakeButton;
+                @TakeButton.performed += instance.OnTakeButton;
+                @TakeButton.canceled += instance.OnTakeButton;
             }
         }
     }
@@ -347,10 +485,14 @@ public partial class @VR : IInputActionCollection2, IDisposable
     {
         void OnPosition(InputAction.CallbackContext context);
         void OnRotation(InputAction.CallbackContext context);
+        void OnTake(InputAction.CallbackContext context);
+        void OnTakeButton(InputAction.CallbackContext context);
     }
     public interface IXRI_HandRightActions
     {
         void OnPosition(InputAction.CallbackContext context);
         void OnRotation(InputAction.CallbackContext context);
+        void OnTake(InputAction.CallbackContext context);
+        void OnTakeButton(InputAction.CallbackContext context);
     }
 }
