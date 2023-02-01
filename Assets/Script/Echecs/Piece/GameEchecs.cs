@@ -16,6 +16,8 @@ namespace Echecs
         private Team botTeam = Team.BLACK;
         private List<GameObject> possibleMove = new List<GameObject>();
 
+        private bool movePiece = false;
+
         #region Getter Setter
 
         public static GameEchecs Instance { get{ return instance;}}
@@ -219,11 +221,11 @@ namespace Echecs
 
         public void ApplyPlayerSimulate(Piece p)
         {
-            if(gameState.endGame || p == null)
+            if(gameState.endGame || p == null || movePiece)
             {
                 return;
-            }
-            float minDistance = 0.2f;
+            }            
+            float minDistance = 0.05f;
             float valCalc = 0.0f;
             int v = -1;
 
@@ -247,8 +249,24 @@ namespace Echecs
                 move(gameState.move,gameState);
                 gameState.move = null;
                 gameState.move = RandomMove(gameState);
-                move(gameState.move,gameState);
+                StartCoroutine(pieceMoveEffect(gameState.move.targetPiece.Obj , boardObject.position + PosToBoard(gameState.move.targetPiece.Pos), boardObject.position + PosToBoard(gameState.move.move)));
+
             }           
+        }
+
+        IEnumerator pieceMoveEffect(GameObject obj , Vector3 src, Vector3 dst)
+        {
+            movePiece = true;            
+            float time = 0.0f;
+            while(time < 1.0f)
+            {
+                time += Time.deltaTime;
+                obj.transform.position = Vector3.Lerp(src,dst,time);
+                yield return null;
+            }
+            yield return null;                        
+            move(gameState.move,gameState);
+            movePiece = false;
         }
 
         public void Clear(GameState gs)

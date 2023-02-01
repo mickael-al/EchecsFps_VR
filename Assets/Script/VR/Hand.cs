@@ -8,7 +8,7 @@ namespace ChessVR
 {
     public class Hand : MonoBehaviour
     {
-        private HandType type;
+        [SerializeField] private HandType type;
         private bool take = false;
         private GameObject piece = null;
         private Piece currentP;
@@ -17,6 +17,8 @@ namespace ChessVR
         private List<GameObject> listPiece = new List<GameObject>();
         private static List<Hand> listOfHand = new List<Hand>();
 
+        private bool takeState = false;
+
         void Start()
         {
             if(type == HandType.Left)
@@ -24,12 +26,21 @@ namespace ChessVR
                 InputManager.Vr.XRI_HandLeft.TakeButton.started += StartTakeButton;
                 InputManager.Vr.XRI_HandLeft.TakeButton.canceled += StopTakeButton;
             }
+            else
+            {
+                InputManager.Vr.XRI_HandRight.TakeButton.started += StartTakeButton;
+                InputManager.Vr.XRI_HandRight.TakeButton.canceled += StopTakeButton;
+            }
             listOfHand.Add(this);
         }
 
         public void StartTakeButton(InputAction.CallbackContext ctx)
         {
-            StartTB();
+            if(!takeState)
+            {
+                StartTB();
+                takeState = true;
+            }
         }
 
         public void StartTB()
@@ -67,7 +78,11 @@ namespace ChessVR
 
         public void StopTakeButton(InputAction.CallbackContext ctx)
         {
-           StopTB();
+            if(takeState)
+            {
+                StopTB();
+                takeState = false;
+            }
         }
 
         public void StopTB()
@@ -88,13 +103,15 @@ namespace ChessVR
 
         public void Update()
         {
-            if(Input.GetKeyDown(KeyCode.Space))
+            if(Input.GetKeyDown(KeyCode.Space) && !takeState)
             {
+                takeState = true;
                 StartTB();
             }
-            if(Input.GetKeyDown(KeyCode.A))
+            if(Input.GetKeyDown(KeyCode.A) && takeState)
             {
                 StopTB();
+                takeState = false;
             }
         }
 
