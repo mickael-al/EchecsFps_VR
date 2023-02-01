@@ -11,7 +11,9 @@ namespace ChessVR
         [SerializeField] private HandType type;
         [SerializeField] private GameObject baseObject = null;
         [SerializeField] private GameObject Gun = null;
+        [SerializeField] private GameObject PivotTP = null;
         [SerializeField] private GameObject projectile = null;
+        [SerializeField] private LayerMask lm = default;
         private bool take = false;
         private GameObject piece = null;
         private Piece currentP;
@@ -19,9 +21,13 @@ namespace ChessVR
         private Dictionary<Vector2Int,MoveType> currentPiceMove;
         private List<GameObject> listPiece = new List<GameObject>();
         private static List<Hand> listOfHand = new List<Hand>();
+        private Vector2 stickValue;
+        private RaycastHit hit;
 
         private bool takeState = false;
         private bool swapGun = false;
+        private Vector3 lastDestination = Vector3.zero;
+        private bool TpPoint = false;
 
         public bool SwapGun
         {
@@ -139,6 +145,34 @@ namespace ChessVR
             {
                 StopTB();
                 takeState = false;
+            }
+            if(type == HandType.Left)
+            {
+                stickValue = InputManager.Vr.XRI_HandLeft.stick.ReadValue<Vector2>();
+            }
+            else
+            {
+                stickValue = InputManager.Vr.XRI_HandRight.stick.ReadValue<Vector2>();                
+            }
+            if(stickValue.y > 0.8f || Input.GetKey(KeyCode.Q))
+            {
+                if(Physics.Raycast(PivotTP.transform.position,PivotTP.transform.TransformDirection(Vector3.forward),out hit,Mathf.Infinity,lm))
+                {
+                    PivotTP.transform.GetChild(0).localScale = new Vector3(0.01f,hit.distance,0.01f);
+                    PivotTP.transform.GetChild(0).localPosition = new Vector3(0.0f,0.0f,hit.distance);
+                    lastDestination = hit.point;
+                    TpPoint = true;
+                }
+            }
+            else if(stickValue.y < 0.1f)
+            {
+                PivotTP.transform.GetChild(0).localScale = new Vector3(0.01f,0.0f,0.01f);
+                PivotTP.transform.GetChild(0).localPosition = new Vector3(0.0f,0.0f,0.0f);
+                if(TpPoint)
+                {
+                    TpPoint = false;
+                    GameObject.FindGameObjectWithTag("Player").transform.position = lastDestination;
+                }
             }
         }
 

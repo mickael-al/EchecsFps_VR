@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
+using ChessVR;
+
 namespace Echecs
 {
     public class GameEchecs : MonoBehaviour
@@ -58,6 +60,7 @@ namespace Echecs
                     playerFindWithTag.transform.position = playerBaseChessPoint.transform.position; 
                     playerFindWithTag.transform.eulerAngles = playerBaseChessPoint.transform.eulerAngles;                         
                 }
+                playerFindWithTag.GetComponent<Player>().SetGun(inFight);
             }
         }
 

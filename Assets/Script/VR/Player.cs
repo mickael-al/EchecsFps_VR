@@ -14,7 +14,10 @@ namespace ChessVR
 
         public void SetGun(bool state)
         {
-            
+            for(int i = 0; i < Hand.Length;i++)
+            {
+                Hand[i].GetComponent<Hand>().SwapGun = state;
+            }
         }
 
         void Update()
