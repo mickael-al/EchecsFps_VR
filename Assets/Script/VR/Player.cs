@@ -8,8 +8,14 @@ namespace ChessVR
     public class Player : MonoBehaviour
     {
         [SerializeField] private GameObject cameraObject = null;
+        [SerializeField] private CharacterController characterController = null;
         [SerializeField] private GameObject[] Hand = null;
         [SerializeField] private float size = 1.0f;
+
+        public void SetGun(bool state)
+        {
+            
+        }
 
         void Update()
         {

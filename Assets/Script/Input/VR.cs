@@ -110,6 +110,15 @@ public partial class @VR : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""stick"",
+                    ""type"": ""Value"",
+                    ""id"": ""14bc644c-9153-4fe7-a604-19f4d05a209f"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -222,6 +231,17 @@ public partial class @VR : IInputActionCollection2, IDisposable
                     ""action"": ""TakeButton"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""42e7c995-0794-4804-87d6-82e237c14ccb"",
+                    ""path"": ""<OculusTouchController>{LeftHand}/thumbstick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""stick"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -264,6 +284,15 @@ public partial class @VR : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""stick"",
+                    ""type"": ""Value"",
+                    ""id"": ""7f667e5f-6d32-4d63-8d80-eeed1688bc74"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -376,6 +405,17 @@ public partial class @VR : IInputActionCollection2, IDisposable
                     ""action"": ""TakeButton"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""faed78d0-0309-4c97-8d00-028f6c8f78cb"",
+                    ""path"": ""<OculusTouchController>{RightHand}/thumbstick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""stick"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -392,12 +432,14 @@ public partial class @VR : IInputActionCollection2, IDisposable
         m_XRI_HandLeft_Rotation = m_XRI_HandLeft.FindAction("Rotation", throwIfNotFound: true);
         m_XRI_HandLeft_Take = m_XRI_HandLeft.FindAction("Take", throwIfNotFound: true);
         m_XRI_HandLeft_TakeButton = m_XRI_HandLeft.FindAction("TakeButton", throwIfNotFound: true);
+        m_XRI_HandLeft_stick = m_XRI_HandLeft.FindAction("stick", throwIfNotFound: true);
         // XRI_HandRight
         m_XRI_HandRight = asset.FindActionMap("XRI_HandRight", throwIfNotFound: true);
         m_XRI_HandRight_Position = m_XRI_HandRight.FindAction("Position", throwIfNotFound: true);
         m_XRI_HandRight_Rotation = m_XRI_HandRight.FindAction("Rotation", throwIfNotFound: true);
         m_XRI_HandRight_Take = m_XRI_HandRight.FindAction("Take", throwIfNotFound: true);
         m_XRI_HandRight_TakeButton = m_XRI_HandRight.FindAction("TakeButton", throwIfNotFound: true);
+        m_XRI_HandRight_stick = m_XRI_HandRight.FindAction("stick", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -502,6 +544,7 @@ public partial class @VR : IInputActionCollection2, IDisposable
     private readonly InputAction m_XRI_HandLeft_Rotation;
     private readonly InputAction m_XRI_HandLeft_Take;
     private readonly InputAction m_XRI_HandLeft_TakeButton;
+    private readonly InputAction m_XRI_HandLeft_stick;
     public struct XRI_HandLeftActions
     {
         private @VR m_Wrapper;
@@ -510,6 +553,7 @@ public partial class @VR : IInputActionCollection2, IDisposable
         public InputAction @Rotation => m_Wrapper.m_XRI_HandLeft_Rotation;
         public InputAction @Take => m_Wrapper.m_XRI_HandLeft_Take;
         public InputAction @TakeButton => m_Wrapper.m_XRI_HandLeft_TakeButton;
+        public InputAction @stick => m_Wrapper.m_XRI_HandLeft_stick;
         public InputActionMap Get() { return m_Wrapper.m_XRI_HandLeft; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -531,6 +575,9 @@ public partial class @VR : IInputActionCollection2, IDisposable
                 @TakeButton.started -= m_Wrapper.m_XRI_HandLeftActionsCallbackInterface.OnTakeButton;
                 @TakeButton.performed -= m_Wrapper.m_XRI_HandLeftActionsCallbackInterface.OnTakeButton;
                 @TakeButton.canceled -= m_Wrapper.m_XRI_HandLeftActionsCallbackInterface.OnTakeButton;
+                @stick.started -= m_Wrapper.m_XRI_HandLeftActionsCallbackInterface.OnStick;
+                @stick.performed -= m_Wrapper.m_XRI_HandLeftActionsCallbackInterface.OnStick;
+                @stick.canceled -= m_Wrapper.m_XRI_HandLeftActionsCallbackInterface.OnStick;
             }
             m_Wrapper.m_XRI_HandLeftActionsCallbackInterface = instance;
             if (instance != null)
@@ -547,6 +594,9 @@ public partial class @VR : IInputActionCollection2, IDisposable
                 @TakeButton.started += instance.OnTakeButton;
                 @TakeButton.performed += instance.OnTakeButton;
                 @TakeButton.canceled += instance.OnTakeButton;
+                @stick.started += instance.OnStick;
+                @stick.performed += instance.OnStick;
+                @stick.canceled += instance.OnStick;
             }
         }
     }
@@ -559,6 +609,7 @@ public partial class @VR : IInputActionCollection2, IDisposable
     private readonly InputAction m_XRI_HandRight_Rotation;
     private readonly InputAction m_XRI_HandRight_Take;
     private readonly InputAction m_XRI_HandRight_TakeButton;
+    private readonly InputAction m_XRI_HandRight_stick;
     public struct XRI_HandRightActions
     {
         private @VR m_Wrapper;
@@ -567,6 +618,7 @@ public partial class @VR : IInputActionCollection2, IDisposable
         public InputAction @Rotation => m_Wrapper.m_XRI_HandRight_Rotation;
         public InputAction @Take => m_Wrapper.m_XRI_HandRight_Take;
         public InputAction @TakeButton => m_Wrapper.m_XRI_HandRight_TakeButton;
+        public InputAction @stick => m_Wrapper.m_XRI_HandRight_stick;
         public InputActionMap Get() { return m_Wrapper.m_XRI_HandRight; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -588,6 +640,9 @@ public partial class @VR : IInputActionCollection2, IDisposable
                 @TakeButton.started -= m_Wrapper.m_XRI_HandRightActionsCallbackInterface.OnTakeButton;
                 @TakeButton.performed -= m_Wrapper.m_XRI_HandRightActionsCallbackInterface.OnTakeButton;
                 @TakeButton.canceled -= m_Wrapper.m_XRI_HandRightActionsCallbackInterface.OnTakeButton;
+                @stick.started -= m_Wrapper.m_XRI_HandRightActionsCallbackInterface.OnStick;
+                @stick.performed -= m_Wrapper.m_XRI_HandRightActionsCallbackInterface.OnStick;
+                @stick.canceled -= m_Wrapper.m_XRI_HandRightActionsCallbackInterface.OnStick;
             }
             m_Wrapper.m_XRI_HandRightActionsCallbackInterface = instance;
             if (instance != null)
@@ -604,6 +659,9 @@ public partial class @VR : IInputActionCollection2, IDisposable
                 @TakeButton.started += instance.OnTakeButton;
                 @TakeButton.performed += instance.OnTakeButton;
                 @TakeButton.canceled += instance.OnTakeButton;
+                @stick.started += instance.OnStick;
+                @stick.performed += instance.OnStick;
+                @stick.canceled += instance.OnStick;
             }
         }
     }
@@ -619,6 +677,7 @@ public partial class @VR : IInputActionCollection2, IDisposable
         void OnRotation(InputAction.CallbackContext context);
         void OnTake(InputAction.CallbackContext context);
         void OnTakeButton(InputAction.CallbackContext context);
+        void OnStick(InputAction.CallbackContext context);
     }
     public interface IXRI_HandRightActions
     {
@@ -626,5 +685,6 @@ public partial class @VR : IInputActionCollection2, IDisposable
         void OnRotation(InputAction.CallbackContext context);
         void OnTake(InputAction.CallbackContext context);
         void OnTakeButton(InputAction.CallbackContext context);
+        void OnStick(InputAction.CallbackContext context);
     }
 }

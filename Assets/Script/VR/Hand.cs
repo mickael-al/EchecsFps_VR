@@ -9,6 +9,9 @@ namespace ChessVR
     public class Hand : MonoBehaviour
     {
         [SerializeField] private HandType type;
+        [SerializeField] private GameObject baseObject = null;
+        [SerializeField] private GameObject Gun = null;
+        [SerializeField] private GameObject projectile = null;
         private bool take = false;
         private GameObject piece = null;
         private Piece currentP;
@@ -18,7 +21,17 @@ namespace ChessVR
         private static List<Hand> listOfHand = new List<Hand>();
 
         private bool takeState = false;
+        private bool swapGun = false;
 
+        public bool SwapGun
+        {
+            get{return swapGun;}
+            set{
+                swapGun = value;
+                Gun.SetActive(value);
+                baseObject.SetActive(!value);
+            }
+        }
         void Start()
         {
             if(type == HandType.Left)
@@ -36,10 +49,17 @@ namespace ChessVR
 
         public void StartTakeButton(InputAction.CallbackContext ctx)
         {
-            if(!takeState)
+            if(swapGun)
             {
-                StartTB();
-                takeState = true;
+                Destroy(Instantiate(projectile,Gun.transform.GetChild(0).position,Gun.transform.GetChild(0).rotation),10.0f);
+            }
+            else
+            {
+                if(!takeState)
+                {
+                    StartTB();
+                    takeState = true;
+                }
             }
         }
 
@@ -50,11 +70,14 @@ namespace ChessVR
             float calculeVal = 0.0f;
             for(int i = 0; i < listPiece.Count;i++)
             {
-                calculeVal = Vector3.Distance(listPiece[i].transform.position,transform.position);
-                if(calculeVal < minValue)
+                if(listPiece[i] != null)
                 {
-                    minValue = calculeVal;  
-                    obj = listPiece[i];       
+                    calculeVal = Vector3.Distance(listPiece[i].transform.position,transform.position);
+                    if(calculeVal < minValue)
+                    {
+                        minValue = calculeVal;  
+                        obj = listPiece[i];       
+                    }
                 }
             }
             if(obj == null)
@@ -70,10 +93,14 @@ namespace ChessVR
                     {
                         piece = null;
                         parentPiece = null;
+                        takeState = false;
                     }
                 }
-                parentPiece = piece.transform.parent;
-                piece.transform.parent = transform;
+                if(piece != null)
+                {
+                    parentPiece = piece.transform.parent;
+                    piece.transform.parent = transform;
+                }
         }
 
         public void StopTakeButton(InputAction.CallbackContext ctx)

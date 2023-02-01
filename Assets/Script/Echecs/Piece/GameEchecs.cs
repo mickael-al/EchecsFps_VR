@@ -9,6 +9,11 @@ namespace Echecs
     {
         [SerializeField] private Transform boardObject = null;
         [SerializeField] private GameObject prefabPossibleMove = null;
+        [SerializeField] private GameObject mapObject = null;
+        [SerializeField] private GameObject playerSpawnPoint = null;
+        [SerializeField] private GameObject playerBaseChessPoint = null;
+        [SerializeField] private GameObject botSpawnPoint = null;
+        [SerializeField] private List<Light> pointsLight = null;
         private static GameEchecs instance = null;
         private GameState gameState = new GameState();
         private Dictionary<PieceType,GameObject> prefabObjectPiece = new Dictionary<PieceType, GameObject>();
@@ -17,6 +22,7 @@ namespace Echecs
         private List<GameObject> possibleMove = new List<GameObject>();
 
         private bool movePiece = false;
+        private bool inFight = true;
 
         #region Getter Setter
 
@@ -24,6 +30,36 @@ namespace Echecs
         public Dictionary<PieceType,GameObject> PrefabObjectPiece { get{ return prefabObjectPiece;}}
         public Dictionary<Team,Material> TeamsMaterial { get{ return teamsMaterial;}}
         public Transform BoardObject { get{ return boardObject;}}
+
+        public bool ScaleMapFight { get{ return inFight;}
+            set
+            {
+                inFight = value;
+                GameObject playerFindWithTag = GameObject.FindGameObjectWithTag("Player");
+                if(value)
+                {
+                    mapObject.transform.localScale = new Vector3(6,6,6);                    
+                    for(int i = 0; i < pointsLight.Count;i++)
+                    {
+                        pointsLight[i].intensity = 10*8;
+                        pointsLight[i].range = 30*8;
+                    }
+                    playerFindWithTag.transform.position = playerSpawnPoint.transform.position; 
+                    playerFindWithTag.transform.eulerAngles = playerSpawnPoint.transform.eulerAngles; 
+                }
+                else
+                {
+                    mapObject.transform.localScale = Vector3.one;
+                    for(int i = 0; i < pointsLight.Count;i++)
+                    {
+                        pointsLight[i].intensity = 10;
+                        pointsLight[i].range = 30;                        
+                    }
+                    playerFindWithTag.transform.position = playerBaseChessPoint.transform.position; 
+                    playerFindWithTag.transform.eulerAngles = playerBaseChessPoint.transform.eulerAngles;                         
+                }
+            }
+        }
 
         #endregion
 
@@ -374,7 +410,8 @@ namespace Echecs
         {
             if(gs.field[end.x,end.y] != null)
             {
-                gs.field[end.x,end.y].Dead = true;                
+                gs.field[end.x,end.y].Dead = true;    
+                ScaleMapFight = true;            
             }
             gs.field[end.x,end.y] = gs.field[start.x,start.y];
             gs.field[end.x,end.y].HasMoved = true;
@@ -431,7 +468,11 @@ namespace Echecs
 
             Piece clickedOn = new Queen(team,end,this);
             //Create new Piece between Rook,Knight,bishop,Queen
-   
+
+            if(gs.field[end.x,end.y] != null)
+            {
+                gs.field[end.x,end.y].Dead = true;                
+            }
             gs.field[end.x,end.y] = clickedOn;
             gs.field[start.x,start.y].Dead = true;
             gs.field[start.x,start.y] = null;
@@ -440,6 +481,10 @@ namespace Echecs
 
         private void enPassant(Vector2Int start, Vector2Int end,GameState gs)
         {
+            if(gs.field[end.x,end.y] != null)
+            {
+                gs.field[end.x,end.y].Dead = true;                
+            }
             Pawn pawn = (Pawn)(gs.field[start.x,start.y]);
             gs.field[end.x,end.y - pawn.Direction] = null;
             gs.field[end.x,end.y] = gs.field[start.x,start.y];
