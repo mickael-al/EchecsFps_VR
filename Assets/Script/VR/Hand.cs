@@ -154,7 +154,7 @@ namespace ChessVR
             {
                 stickValue = InputManager.Vr.XRI_HandRight.stick.ReadValue<Vector2>();                
             }
-            if(stickValue.y > 0.8f || Input.GetKey(KeyCode.Q))
+            if((stickValue.y < -0.9f || Input.GetKey(KeyCode.Q)) && swapGun)
             {
                 if(Physics.Raycast(PivotTP.transform.position,PivotTP.transform.TransformDirection(Vector3.forward),out hit,Mathf.Infinity,lm))
                 {
@@ -164,7 +164,7 @@ namespace ChessVR
                     TpPoint = true;
                 }
             }
-            else if(stickValue.y < 0.1f)
+            else if(stickValue.y > -0.1f)
             {
                 PivotTP.transform.GetChild(0).localScale = new Vector3(0.01f,0.0f,0.01f);
                 PivotTP.transform.GetChild(0).localPosition = new Vector3(0.0f,0.0f,0.0f);

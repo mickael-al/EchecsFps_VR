@@ -4,10 +4,9 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    [SerializeField] private Rigidbody rb = null;
     [SerializeField] private float force = 5.0f;
-    void Start()
+    void Update()
     {
-        rb.AddForce(transform.TransformDirection(Vector3.forward)*force,ForceMode.Impulse);
+        transform.Translate(Vector3.forward*force*Time.deltaTime);
     }
 }
