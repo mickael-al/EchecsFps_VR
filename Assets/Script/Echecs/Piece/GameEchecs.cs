@@ -11,8 +11,10 @@ namespace Echecs
     {
         [SerializeField] private Transform boardObject = null;
         [SerializeField] private GameObject prefabPossibleMove = null;
+        [SerializeField] private GameObject prefabEnnemi = null;
         [SerializeField] private GameObject mapObject = null;
         [SerializeField] private GameObject playerSpawnPoint = null;
+        [SerializeField] private GameObject ennemieSpawnPoint = null;
         [SerializeField] private GameObject playerBaseChessPoint = null;
         [SerializeField] private GameObject botSpawnPoint = null;
         [SerializeField] private List<Light> pointsLight = null;
@@ -32,15 +34,20 @@ namespace Echecs
         public Dictionary<PieceType,GameObject> PrefabObjectPiece { get{ return prefabObjectPiece;}}
         public Dictionary<Team,Material> TeamsMaterial { get{ return teamsMaterial;}}
         public Transform BoardObject { get{ return boardObject;}}
+        public GameObject pieceObjEnemy = null;
 
-        public bool ScaleMapFight { get{ return inFight;}
-            set
-            {
+        public void EndFpsGame()
+        {
+            
+        }
+
+        public void ScaleMapFight(bool value,Piece eobj,Piece pobj)
+        {
                 inFight = value;
                 GameObject playerFindWithTag = GameObject.FindGameObjectWithTag("Player");
                 if(value)
                 {
-                    mapObject.transform.localScale = new Vector3(6,6,6);                    
+                    mapObject.transform.localScale = new Vector3(6,6,6);
                     for(int i = 0; i < pointsLight.Count;i++)
                     {
                         pointsLight[i].intensity = 10*8;
@@ -48,6 +55,14 @@ namespace Echecs
                     }
                     playerFindWithTag.transform.position = playerSpawnPoint.transform.position; 
                     playerFindWithTag.transform.eulerAngles = playerSpawnPoint.transform.eulerAngles; 
+                    pieceObjEnemy = Instantiate(prefabEnnemi,ennemieSpawnPoint.transform.position,Quaternion.identity);
+                    GameObject obj = Instantiate(eobj.Obj);
+                    Ennemis en = pieceObjEnemy.transform.GetChild(0).GetComponent<Ennemis>();
+                    en.Setup(playerFindWithTag,eobj.fps_SpeedStat,eobj.fps_rateProjectileStat,eobj.fps_LifeStat);
+                    playerFindWithTag.GetComponent<Player>().FpsSetup(pobj.fps_LifeStat);                    
+                    obj.transform.parent = en.transform;                    
+                    obj.transform.localPosition = Vector3.zero;
+                    obj.transform.localScale = Vector3.one*15;
                 }
                 else
                 {
@@ -58,10 +73,12 @@ namespace Echecs
                         pointsLight[i].range = 30;                        
                     }
                     playerFindWithTag.transform.position = playerBaseChessPoint.transform.position; 
-                    playerFindWithTag.transform.eulerAngles = playerBaseChessPoint.transform.eulerAngles;                         
+                    playerFindWithTag.transform.eulerAngles = playerBaseChessPoint.transform.eulerAngles; 
+                    Destroy(pieceObjEnemy);                        
                 }
                 playerFindWithTag.GetComponent<Player>().SetGun(inFight);
-            }
+                playerFindWithTag.GetComponent<CharacterController>().enabled = inFight;
+            
         }
 
         #endregion
@@ -413,8 +430,15 @@ namespace Echecs
         {
             if(gs.field[end.x,end.y] != null)
             {
-                gs.field[end.x,end.y].Dead = true;    
-                ScaleMapFight = true;            
+                if(gs.field[end.x,end.y].Team == Team.BLACK)
+                {
+                    ScaleMapFight(true,gs.field[end.x,end.y],gs.field[start.x,start.y]);
+                }
+                else
+                {
+                    ScaleMapFight(true,gs.field[start.x,start.y],gs.field[end.x,end.y]);
+                }
+                gs.field[end.x,end.y].Dead = true;
             }
             gs.field[end.x,end.y] = gs.field[start.x,start.y];
             gs.field[end.x,end.y].HasMoved = true;

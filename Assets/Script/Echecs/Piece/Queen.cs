@@ -8,6 +8,10 @@ namespace Echecs
     {
         public Queen(Team team, Vector2Int pos,GameEchecs ge) : base(team,PieceType.QUEEN,pos,ge){}
 
+        public override float fps_LifeStat { get{return 350.0f;}}
+	    public override float fps_SpeedStat { get{return 10.0f;}}
+	    public override float fps_rateProjectileStat { get{return 0.1f;}}
+
         public override void calculePossibleMoves(Piece[,] field, bool check)
         {
             m_possibleMoves.Clear();

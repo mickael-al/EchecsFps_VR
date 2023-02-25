@@ -10,13 +10,13 @@ namespace ChessVR
         [SerializeField] private GameObject cameraObject = null;
         [SerializeField] private CharacterController characterController = null;
         [SerializeField] private GameObject[] Hand = null;
-
+        private float life = 100.0f;
         private bool swapGun = false;
         public void SetGun(bool state)
         {
             for(int i = 0; i < Hand.Length;i++)
             {
-                Hand[i].GetComponent<Hand>().SwapGun = state;
+                Hand[i].GetComponent<Hand>().SwapGun = state;                
             }
             swapGun = state;
         }
@@ -34,5 +34,16 @@ namespace ChessVR
                 transform.Rotate(Vector3.up * Mathf.Clamp(InputManager.Vr.XRI_HandRight.stick.ReadValue<Vector2>().x+InputManager.Vr.XRI_HandLeft.stick.ReadValue<Vector2>().x,-1.0f,1.0f) * Time.deltaTime * 55.0f);
             }
         }
+
+        public void FpsSetup(float lifeP)
+        {
+            life = lifeP;
+        }
+
+        public void addDegat(float degat)
+        {
+            life -= degat;
+        }
     }
+    
 }

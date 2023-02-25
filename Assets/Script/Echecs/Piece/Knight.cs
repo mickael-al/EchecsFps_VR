@@ -6,6 +6,9 @@ namespace Echecs
 {
     public class Knight : Piece
     {
+        public override float fps_LifeStat { get{return 100.0f;}}
+	    public override float fps_SpeedStat { get{return 8.0f;}}
+	    public override float fps_rateProjectileStat { get{return 0.4f;}}
         public Knight(Team team, Vector2Int pos,GameEchecs ge) : base(team,PieceType.KNIGHT,pos,ge){}
 
         public override void calculePossibleMoves(Piece[,] field, bool check)

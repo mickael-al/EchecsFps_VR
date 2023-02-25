@@ -46,6 +46,10 @@ namespace Echecs
 		public King OwnKing { get{return King.GetKingByTeam(m_team);} }
 		public GameObject Obj { get{return m_obj;}}
 
+		public virtual float fps_LifeStat { get{return 0.0f;}}
+		public virtual float fps_SpeedStat { get{return 0.0f;}}
+		public virtual float fps_rateProjectileStat { get{return 0.0f;}}
+
 		public bool Dead 
 		{ 
 			get{return m_dead;}

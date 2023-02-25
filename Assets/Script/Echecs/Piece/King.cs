@@ -9,6 +9,10 @@ namespace Echecs
         private bool m_check;
         private static Dictionary<Team,King> m_listOfKing = new Dictionary<Team, King>();
         private int turnMoveOnlyThis = 0;
+
+        public override float fps_LifeStat { get{return 300.0f;}}
+	    public override float fps_SpeedStat { get{return 15.0f;}}
+	    public override float fps_rateProjectileStat { get{return 0.2f;}}
         public King(Team team, Vector2Int pos,GameEchecs ge) : base(team,PieceType.KING,pos,ge)
         {
             if(!m_listOfKing.ContainsKey(team))

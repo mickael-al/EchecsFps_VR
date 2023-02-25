@@ -8,6 +8,9 @@ namespace Echecs
 	{
 		protected int m_dy;
 		protected KeyValuePair<bool,int> m_enPassant = new KeyValuePair<bool,int>(false,0);
+		public override float fps_LifeStat { get{return 40.0f;}}
+	    public override float fps_SpeedStat { get{return 5.0f;}}
+	    public override float fps_rateProjectileStat { get{return 0.8f;}}
 		public Pawn(Team team, Vector2Int pos,GameEchecs ge) : base(team,PieceType.PAWN,pos,ge)
 		{
 			m_dy = team == Team.BLACK ? -1 : 1;

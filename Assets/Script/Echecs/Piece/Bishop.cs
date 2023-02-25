@@ -6,6 +6,9 @@ namespace Echecs
 {
     public class Bishop : Piece
     {
+        public override float fps_LifeStat { get{return 100.0f;}}
+		public override float fps_SpeedStat { get{return 14.0f;}}
+		public override float fps_rateProjectileStat { get{return 0.6f;}}
         public Bishop(Team team, Vector2Int pos,GameEchecs ge) : base(team,PieceType.BISHOP,pos,ge){}
 
         public override void calculePossibleMoves(Piece[,] field, bool check)
