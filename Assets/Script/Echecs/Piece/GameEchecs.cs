@@ -486,6 +486,7 @@ namespace Echecs
                 winGameObjectText[0].SetActive(false);
                 winGameObjectText[1].SetActive(false);
                 winGameObjectText[2].SetActive(false);
+                ClearPossibleMove();
                 possibleMove = new List<GameObject>();
                 movePiece = false;
                 inFight = true;
