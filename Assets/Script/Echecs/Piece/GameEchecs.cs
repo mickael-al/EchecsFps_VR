@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-
+using System;
 using ChessVR;
 
 namespace Echecs
@@ -17,7 +17,11 @@ namespace Echecs
         [SerializeField] private GameObject ennemieSpawnPoint = null;
         [SerializeField] private GameObject playerBaseChessPoint = null;
         [SerializeField] private GameObject botSpawnPoint = null;
+        [SerializeField] private GameObject tipsText = null;
         [SerializeField] private List<Light> pointsLight = null;
+        [SerializeField] private List<GameObject> winGameObjectText;
+        [SerializeField] private AudioSource audioAccept = null;
+        [SerializeField] private AudioSource audioChess = null;
         private static GameEchecs instance = null;
         private GameState gameState = new GameState();
         private Dictionary<PieceType,GameObject> prefabObjectPiece = new Dictionary<PieceType, GameObject>();
@@ -35,15 +39,20 @@ namespace Echecs
         public Dictionary<Team,Material> TeamsMaterial { get{ return teamsMaterial;}}
         public Transform BoardObject { get{ return boardObject;}}
         public GameObject pieceObjEnemy = null;
+        private bool PlayerWinFpsGame = false;
+        private bool inMove = false;
+        private bool inMoveCor = false;
 
-        public void EndFpsGame()
+        public bool EndOfGame {get {return gameState.endGame;}}
+
+        public void EndFpsGame(bool playerDead)
         {
-            
+            PlayerWinFpsGame = !playerDead;
+            ScaleMapFight(false,null,null);
         }
 
         public void ScaleMapFight(bool value,Piece eobj,Piece pobj)
-        {
-                inFight = value;
+        {                
                 GameObject playerFindWithTag = GameObject.FindGameObjectWithTag("Player");
                 if(value)
                 {
@@ -58,8 +67,8 @@ namespace Echecs
                     pieceObjEnemy = Instantiate(prefabEnnemi,ennemieSpawnPoint.transform.position,Quaternion.identity);
                     GameObject obj = Instantiate(eobj.Obj);
                     Ennemis en = pieceObjEnemy.transform.GetChild(0).GetComponent<Ennemis>();
-                    en.Setup(playerFindWithTag,eobj.fps_SpeedStat,eobj.fps_rateProjectileStat,eobj.fps_LifeStat);
-                    playerFindWithTag.GetComponent<Player>().FpsSetup(pobj.fps_LifeStat);                    
+                    en.Setup(playerFindWithTag,eobj.fps_SpeedStat,eobj.fps_rateProjectileStat,eobj.fps_LifeStat,EndFpsGame);
+                    playerFindWithTag.GetComponent<Player>().FpsSetup(pobj.fps_LifeStat,EndFpsGame);                    
                     obj.transform.parent = en.transform;                    
                     obj.transform.localPosition = Vector3.zero;
                     obj.transform.localScale = Vector3.one*15;
@@ -76,8 +85,9 @@ namespace Echecs
                     playerFindWithTag.transform.eulerAngles = playerBaseChessPoint.transform.eulerAngles; 
                     Destroy(pieceObjEnemy);                        
                 }
-                playerFindWithTag.GetComponent<Player>().SetGun(inFight);
-                playerFindWithTag.GetComponent<CharacterController>().enabled = inFight;
+                playerFindWithTag.GetComponent<Player>().SetGun(value);
+                playerFindWithTag.GetComponent<CharacterController>().enabled = value;
+                inFight = value;
             
         }
 
@@ -184,8 +194,8 @@ namespace Echecs
             }
             if(canmove.Count > 0)
             {
-                Piece rdp = canmove[Random.Range(0,canmove.Count)];
-                int v = Random.Range(0,rdp.PossibleMoves.Keys.Count);
+                Piece rdp = canmove[UnityEngine.Random.Range(0,canmove.Count)];
+                int v = UnityEngine.Random.Range(0,rdp.PossibleMoves.Keys.Count);
                 return new Move(gs.turn,rdp,rdp.PossibleMoves.Keys.ElementAt(v),rdp.PossibleMoves.Values.ElementAt(v));
             }
             return null;
@@ -253,7 +263,7 @@ namespace Echecs
             }
         }
 
-        public void Simulate(GameState gs)
+        /*public void Simulate(GameState gs)
         {
             if(gs.endGame)
             {
@@ -273,13 +283,14 @@ namespace Echecs
                     DrawPossibleMove(gs.move.targetPiece);
                 }
             }
-        }
+        }*/
 
-        public void ApplyPlayerSimulate(Piece p)
+        public IEnumerator ApplyPlayerSimulate(Piece p,Action applyPlayerSimulate)
         {
             if(gameState.endGame || p == null || movePiece)
             {
-                return;
+                applyPlayerSimulate?.Invoke();
+                yield break;
             }            
             float minDistance = 0.05f;
             float valCalc = 0.0f;
@@ -297,17 +308,26 @@ namespace Echecs
             if(v == -1)
             {
                 p.Pos = p.Pos;
-                return;
+                applyPlayerSimulate?.Invoke();
+                yield break;
             }
             gameState.move = new Move(gameState.turn,p,p.PossibleMoves.Keys.ElementAt(v),p.PossibleMoves.Values.ElementAt(v));
             if(gameState.move != null)
             {
-                move(gameState.move,gameState);
+                inMoveCor = true;
+                StartCoroutine(move(gameState.move,gameState));
+                audioChess.Play();
+                while(inMove)
+                {
+                    yield return null;
+                }
                 gameState.move = null;
                 gameState.move = RandomMove(gameState);
                 StartCoroutine(pieceMoveEffect(gameState.move.targetPiece.Obj , boardObject.position + PosToBoard(gameState.move.targetPiece.Pos), boardObject.position + PosToBoard(gameState.move.move)));
 
-            }           
+            }         
+            yield return null;  
+            applyPlayerSimulate?.Invoke();
         }
 
         IEnumerator pieceMoveEffect(GameObject obj , Vector3 src, Vector3 dst)
@@ -320,8 +340,13 @@ namespace Echecs
                 obj.transform.position = Vector3.Lerp(src,dst,time);
                 yield return null;
             }
-            yield return null;                        
-            move(gameState.move,gameState);
+            yield return null;      
+            inMoveCor = true;                  
+            StartCoroutine(move(gameState.move,gameState));
+            while(inMoveCor)
+            {
+                yield return null;
+            }
             movePiece = false;
         }
 
@@ -336,7 +361,7 @@ namespace Echecs
             }
         }
 
-        private void move(Move move,GameState gs)
+        private IEnumerator move(Move move,GameState gs)
         {
             if (gs.checkEnPassant)
             {
@@ -351,7 +376,8 @@ namespace Echecs
             switch (move.moveType)
             {
                 case MoveType.NORMAL:
-                    normal(move.targetPiece.Pos, move.move,gs);
+                    inMove = true;
+                    StartCoroutine(normal(move.targetPiece.Pos, move.move,gs));
                     break;
                 case MoveType.CASTLE:
                     castles(move.targetPiece.Pos,  move.move,gs);
@@ -366,7 +392,16 @@ namespace Echecs
                     break;
             }
 
+            while(inMove)
+            {
+                yield return null;
+            }
+                            GameObject playerFindWithTag = GameObject.FindGameObjectWithTag("Player");
+                playerFindWithTag.transform.position = playerBaseChessPoint.transform.position; 
+                playerFindWithTag.transform.eulerAngles = playerBaseChessPoint.transform.eulerAngles; 
             WinOrLoose(gs);
+            yield return null;
+            inMoveCor = false;
         }
 
         private void WinOrLoose(GameState gs)
@@ -400,12 +435,14 @@ namespace Echecs
 
             if (king.Check && lost)
             {
-                Debug.Log(gs.turn == Team.BLACK ? "Black wins" : "White wins");                
+                Debug.Log(gs.turn == Team.BLACK ? "Black wins" : "White wins");    
+                winGameObjectText[gs.turn == Team.BLACK ? 0 : 1].SetActive(true);            
                 gs.endGame = true;
             }
             else if (lost)
             {
                 Debug.Log("Equal"+(gs.turn == Team.BLACK ? "B" : "W")); 
+                winGameObjectText[2].SetActive(true);
                 gs.endGame = true;
             }
             if(moveOnlyKing)
@@ -415,6 +452,7 @@ namespace Echecs
                 {
                     Debug.Log("TurnMoveOnly");
                     Debug.Log(gs.turn == Team.BLACK ? "Black wins" : "White wins");
+                    winGameObjectText[gs.turn == Team.BLACK ? 0 : 1].SetActive(true);
                     gs.endGame = true;
                 }
             }
@@ -425,11 +463,50 @@ namespace Echecs
             gs.turn = gs.turn == Team.WHITE ? Team.BLACK : Team.WHITE;
         }
 
-
-        private void normal(Vector2Int start, Vector2Int end,GameState gs)
+        public void AcceptCommand()
         {
+            if(tipsText.activeSelf)
+            {
+                tipsText.SetActive(false);
+                audioAccept.Play();
+            }
+            if(gameState.endGame)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    for (int j = 0; j < 8; j++)
+                    {
+                        if (gameState.field[i,j] != null)
+                        {
+                            Destroy(gameState.field[i,j].Obj);
+                        }
+                    }
+                }
+                tipsText.SetActive(false);
+                winGameObjectText[0].SetActive(false);
+                winGameObjectText[1].SetActive(false);
+                winGameObjectText[2].SetActive(false);
+                possibleMove = new List<GameObject>();
+                movePiece = false;
+                inFight = true;
+                King.ClearKing();
+                gameState = new GameState();
+                InitGameState(gameState);
+                audioAccept.Play();
+            }
+        }
+
+
+        private IEnumerator normal(Vector2Int start, Vector2Int end,GameState gs)
+        {            
+            bool MovePlayerTeam = gs.field[start.x,start.y].Team == Team.WHITE;
             if(gs.field[end.x,end.y] != null)
             {
+                tipsText.SetActive(true);
+                while(tipsText.activeSelf)
+                {
+                    yield return null;
+                }
                 if(gs.field[end.x,end.y].Team == Team.BLACK)
                 {
                     ScaleMapFight(true,gs.field[end.x,end.y],gs.field[start.x,start.y]);
@@ -437,6 +514,19 @@ namespace Echecs
                 else
                 {
                     ScaleMapFight(true,gs.field[start.x,start.y],gs.field[end.x,end.y]);
+                }
+                while(inFight)
+                {
+                    yield return null;
+                }
+                GameObject playerFindWithTag = GameObject.FindGameObjectWithTag("Player");
+                playerFindWithTag.transform.position = playerBaseChessPoint.transform.position; 
+                playerFindWithTag.transform.eulerAngles = playerBaseChessPoint.transform.eulerAngles; 
+                if((MovePlayerTeam && !PlayerWinFpsGame) || (!MovePlayerTeam && PlayerWinFpsGame))
+                {
+                    inMove = false;
+                    gs.field[start.x,start.y].Obj.transform.position = boardObject.position + PosToBoard(gs.field[start.x,start.y].Pos);
+                    yield break;
                 }
                 gs.field[end.x,end.y].Dead = true;
             }
@@ -476,6 +566,8 @@ namespace Echecs
                     }
                 }
             }
+            inMove = false;
+            yield return null;
         }
 
 

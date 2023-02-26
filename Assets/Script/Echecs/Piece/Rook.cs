@@ -6,6 +6,9 @@ namespace Echecs
 {
     public class Rook : Piece
     {
+        public override float fps_LifeStat { get{return 100.0f;}}
+	    public override float fps_SpeedStat { get{return 0.0f;}}
+	    public override float fps_rateProjectileStat { get{return 0.05f;}}
         public Rook(Team team, Vector2Int pos,GameEchecs ge) : base(team,PieceType.ROOK,pos,ge){}
 
         public override void calculePossibleMoves(Piece[,] field, bool check)

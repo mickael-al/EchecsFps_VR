@@ -15,9 +15,9 @@ public class Projectile : MonoBehaviour
     {      
         if(other.transform.tag != ignoreTag)
         {  
-            if(other.transform.tag != "Piece")
+            if(other.transform.tag == "Piece")
             {
-                Destroy(gameObject);
+                
             }
             else if(other.GetComponent<Ennemis>())
             {

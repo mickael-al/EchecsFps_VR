@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//using Chess;
+using System;
 
 namespace ChessVR
 {
@@ -12,6 +12,7 @@ namespace ChessVR
         [SerializeField] private GameObject[] Hand = null;
         private float life = 100.0f;
         private bool swapGun = false;
+        private Action<bool> endGame;
         public void SetGun(bool state)
         {
             for(int i = 0; i < Hand.Length;i++)
@@ -35,14 +36,19 @@ namespace ChessVR
             }
         }
 
-        public void FpsSetup(float lifeP)
+        public void FpsSetup(float lifeP,Action<bool> endG)
         {
             life = lifeP;
+            endGame = endG;
         }
 
         public void addDegat(float degat)
         {
             life -= degat;
+            if(life < 0)
+            {
+                endGame?.Invoke(true);
+            }
         }
     }
     

@@ -11,8 +11,13 @@ namespace Echecs
         private int turnMoveOnlyThis = 0;
 
         public override float fps_LifeStat { get{return 300.0f;}}
-	    public override float fps_SpeedStat { get{return 15.0f;}}
-	    public override float fps_rateProjectileStat { get{return 0.2f;}}
+	    public override float fps_SpeedStat { get{return 12.0f;}}
+	    public override float fps_rateProjectileStat { get{return 0.1f;}}
+
+        public static void ClearKing()
+        {
+            m_listOfKing.Clear();
+        }
         public King(Team team, Vector2Int pos,GameEchecs ge) : base(team,PieceType.KING,pos,ge)
         {
             if(!m_listOfKing.ContainsKey(team))

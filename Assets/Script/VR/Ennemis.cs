@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace ChessVR
 {
@@ -16,21 +17,22 @@ namespace ChessVR
         private float speed;
         private GameObject targetPlayer;
         private float timeUntilNextProjectile = 0;
-        
-        public void Setup(GameObject target,float moveS,float projectileRs,float lifeP)
+        private Action<bool> endGame;
+        public void Setup(GameObject target,float moveS,float projectileRs,float lifeP,Action<bool> endG)
         {
             targetPlayer = target;
             speed = moveS;
             moveSpeed = moveS;
             projectileRateSpawn = projectileRs;
             life = lifeP;
+            endGame = endG;
         }
         
         private void Start()
         {
             boundsCollider = GetComponentInParent<BoxCollider>();
             CalculateBounds();
-            direction = new Vector3(Random.Range(0.0f, 1.0f),0.0f,Random.Range(0.0f, 1.0f));
+            direction = new Vector3(UnityEngine.Random.Range(0.0f, 1.0f),0.0f,UnityEngine.Random.Range(0.0f, 1.0f));
             speed = moveSpeed;
         }
 
@@ -47,7 +49,7 @@ namespace ChessVR
             life -= degat;
             if(life <= 0)
             {
-                Destroy(boundsCollider.transform.gameObject);
+                endGame?.Invoke(false);
             }
         }
 
@@ -70,7 +72,7 @@ namespace ChessVR
             if (timeUntilNextProjectile <= 0 && targetPlayer != null)
             {
                 Vector3 directionToPlayer = (targetPlayer.transform.position - transform.position).normalized;
-                GameObject projectile = Instantiate(projectilePrefab[Random.Range(0,projectilePrefab.Count)], transform.position+new Vector3(0,1.0f,0), Quaternion.LookRotation(directionToPlayer));   
+                GameObject projectile = Instantiate(projectilePrefab[UnityEngine.Random.Range(0,projectilePrefab.Count)], transform.position+new Vector3(0,1.0f,0), Quaternion.LookRotation(directionToPlayer));   
                 timeUntilNextProjectile = projectileRateSpawn;
             }
         }

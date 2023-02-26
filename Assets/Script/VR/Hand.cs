@@ -25,6 +25,7 @@ namespace ChessVR
         private RaycastHit hit;
 
         private bool takeState = false;
+        private bool applyPlayerSimulate = false;
         private bool swapGun = false;
         private Vector3 lastDestination = Vector3.zero;
         private bool TpPoint = false;
@@ -44,13 +45,20 @@ namespace ChessVR
             {
                 InputManager.Vr.XRI_HandLeft.TakeButton.started += StartTakeButton;
                 InputManager.Vr.XRI_HandLeft.TakeButton.canceled += StopTakeButton;
+                InputManager.Vr.XRI_HandLeft.Accept.performed += Accept;
             }
             else
             {
                 InputManager.Vr.XRI_HandRight.TakeButton.started += StartTakeButton;
                 InputManager.Vr.XRI_HandRight.TakeButton.canceled += StopTakeButton;
+                InputManager.Vr.XRI_HandRight.Accept.performed += Accept;
             }
             listOfHand.Add(this);
+        }
+
+        public void Accept(InputAction.CallbackContext ctx)
+        {
+            GameEchecs.Instance.AcceptCommand();
         }
 
         public void StartTakeButton(InputAction.CallbackContext ctx)
@@ -61,7 +69,7 @@ namespace ChessVR
             }
             else
             {
-                if(!takeState)
+                if(!takeState && !GameEchecs.Instance.EndOfGame)
                 {
                     StartTB();
                     takeState = true;
@@ -113,38 +121,53 @@ namespace ChessVR
         {
             if(takeState)
             {
-                StopTB();
-                takeState = false;
+                StartCoroutine(StopTB());
             }
         }
 
-        public void StopTB()
+        public void StopApplySimulate()
+        {
+            applyPlayerSimulate = false;
+        }
+
+        public IEnumerator StopTB()
         {
             if(piece == null)
             {
-                return;
+                takeState = false;
+                yield break;
             }
-            piece.transform.parent = parentPiece;            
-            GameEchecs.Instance.ApplyPlayerSimulate(currentP);
+            piece.transform.parent = parentPiece;  
+            applyPlayerSimulate = true;          
+            StartCoroutine(GameEchecs.Instance.ApplyPlayerSimulate(currentP,StopApplySimulate));
+            while(applyPlayerSimulate)
+            {
+                yield return null;
+            }
             GameEchecs.Instance.ClearPossibleMove();
             piece = null;            
             currentP = null;
             currentPiceMove = null;
             parentPiece = null;
             listPiece.Clear();
+            takeState = false;
         }
 
         public void Update()
         {
+
+            if(Input.GetKeyDown(KeyCode.Z))
+            {                
+                GameEchecs.Instance.AcceptCommand();
+            }
             if(Input.GetKeyDown(KeyCode.Space) && !takeState)
-            {
+            {                
                 takeState = true;
                 StartTB();
             }
             if(Input.GetKeyDown(KeyCode.A) && takeState)
             {
-                StopTB();
-                takeState = false;
+                StartCoroutine(StopTB());
             }
             if(type == HandType.Left)
             {
